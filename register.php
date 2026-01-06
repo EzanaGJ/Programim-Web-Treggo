@@ -4,9 +4,11 @@ require_once "includes/no_login/header.php";
 <div class="middle-box text-center loginscreen p-5 white-bg shadow-lg animated fadeInDown">
     <div>
         <div class="logo-wrapper">
-            <h1 class="logo-name">Treggo</h1>
+<!-- I added logo - wrapper -->
+            <h1 class="logo-name">Treggo</h1>   <!-- changed something in  logo-name -->
         </div>
         <div class="field-wrapper">
+<!-- I added field wrapper-->
             <h3>Register to Treggo</h3>
             <p>Create account to start shopping.</p>
             <form class="m-t" id="registerForm">
@@ -41,7 +43,8 @@ require_once "includes/no_login/header.php";
                 <button type="button" class="btn btn-primary block full-width m-b" onclick="register()">Register</button>
 
                 <p class="text-muted text-center"><small>Already have an account?</small></p>
-                <a class="btn btn-sm btn-white btn-block" href="login.html">Login</a>
+
+                <a class="btn btn-sm btn-white btn-block" href="login.php">Login</a>
             </form>
             <p class="m-t"><small>Treggo | Designed by EMM'S</small></p>
         </div>
@@ -147,22 +150,28 @@ require_once "includes/no_login/footer.php";
                 type: "POST",
                 url: "ajax.php",
                 data: data,
+                dataType: 'json',
                 processData: false,
                 contentType: false,
                 cache: false,
                 success: function(response) {
-                    response = JSON.parse(response);
                     if (response.status === 200) {
                         toastr["success"](response.message, "Success");
-                        setTimeout(function() {
-                            window.location.href = response.location;
-                        }, 2000);
-                    } else {
+                        if(response.location) {
+                            setTimeout(function() {
+                                window.location.href = response.location;
+                            }, 2000);
+                        }
+                    } else if(response.status === 201) {
                         toastr["warning"](response.message, "Warning");
+                    } else if(response.status === 202) {
+                        toastr["error"](response.message, "Error");
                     }
                 }
             });
+
         }
     }
 </script>
+
 
