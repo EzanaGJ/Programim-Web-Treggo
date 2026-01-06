@@ -55,7 +55,7 @@ if (!isset($_SESSION['user_id'])) {
                 <a class="nav-link" href="profile.php"><i class="fa fa-user"></i> Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="login.php"><i class="fa fa-sign-out"></i> Log out</a>
+                <a class="nav-link" href="logout.php"><i class="fa fa-sign-out"></i> Log out</a>
             </li>
         </ul>
     </nav>
