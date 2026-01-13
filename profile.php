@@ -85,8 +85,14 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
     <div class="profile-card shadow-lg">
 
         <div class="profile-header">
-            <img src="uploads/<?php echo htmlspecialchars(isset($user['profile_pic']) ? $user['profile_pic'] : 'default-user.png'); ?>"
-                 alt="Profile Photo" class="profile-photo">
+            <img src="uploads/<?php
+            echo htmlspecialchars(
+                    !empty($user['profile_pic'])
+                            ? $user['profile_pic'] . '?v=' . time()
+                            : 'default-user.png'
+            );
+            ?>" alt="Profile Photo" class="profile-photo">
+
 
             <div>
                 <h3><?php echo htmlspecialchars($user['name'] . ' ' . $user['surname']); ?></h3>
@@ -221,4 +227,3 @@ require_once "includes/no_login/footer.php";
         });
     }
 </script>
-
