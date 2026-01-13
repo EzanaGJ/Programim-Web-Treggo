@@ -1,6 +1,6 @@
 <?php
 global $conn;
-require_once "dbconnect.php";
+require_once "connect.php";
 require_once "functions.php";
 
 if ($_POST["action"] == "register") {

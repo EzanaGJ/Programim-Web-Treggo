@@ -2,7 +2,7 @@
 global $conn;
 echo "<h1>Verify the E-Mail</h1>";
 
-require_once "dbconnect.php";
+require_once "connect.php";
 
 $user_id = $_GET['id'];
 $email_token = $_GET['token'];

@@ -46,6 +46,9 @@ if (!isset($_SESSION['user_id'])) {
 
         <ul class="navbar-nav">
             <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fa fa-heart"></i></a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#"><i class="fa fa-envelope"></i></a>
             </li>
             <li class="nav-item">
@@ -172,10 +175,6 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </nav>
 
-
-    <footer class="text-center">
-        © 2025 Treggo | Designed by <strong>EMM'S</strong>
-    </footer>
 </div>
 
 <!-- Scripts -->

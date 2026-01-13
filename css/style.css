@@ -4113,12 +4113,13 @@ a.forum-item-title:hover {
   line-height: 20px;
   padding-left: 3px;
 }
+
 /*Slick Carousel */
-.slick-prev:before,
-.slick-next:before {
-  color: #1ab394 !important;
-}
-/* Payments */
+/*.slick-prev:before,*/
+/*.slick-next:before {*/
+/*  color: #1ab394 !important;*/
+/*}*/
+/*!* Payments *!*/
 .payment-card {
   background: #ffffff;
   padding: 20px;
@@ -6594,9 +6595,31 @@ del {
   background-color: #ffc6c6;
 }
 /* E-commerce */
+/*.product-box {*/
+/*  padding: 0;*/
+/*  border: 1px solid #e7eaec;*/
+/*}*/
+
+/*.product-box:hover {*/
+/*    transform: translateY(-5px); !* Lift effect *!*/
+/*    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); !* Deeper shadow on hover *!*/
+/*}*/
+.product-detail-name{
+color:#1ab394 ;
+}
 .product-box {
-  padding: 0;
-  border: 1px solid #e7eaec;
+    padding: 0;
+    border: none; /* Remove the gray line */
+    background: #ffffff;
+    border-radius: 12px; /* Smooth corners */
+    overflow: hidden; /* Ensures image and text don't spill over rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Very subtle shadow */
+    transition: all 0.3s ease; /* Smooth hover transition */
+}
+
+.product-box:hover {
+    transform: translateY(-5px); /* Lift effect */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); /* Deeper shadow on hover */
 }
 .product-box:hover,
 .product-box.active {
@@ -6684,8 +6707,19 @@ table.shoping-cart-table tr td:last-child {
 .product-main-price small {
   font-size: 10px;
 }
+.product-container {
+    background-color: #ffffff; /* The white box */
+    padding: 20px;             /* Space inside the box so content doesn't touch edges */
+    margin: 20px auto;         /* Centers the box and adds space outside */
+    border-radius: 8px;        /* Matches your "slightly round" request */
+    max-width: 1200px;         /* Prevents the box from stretching too wide */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Optional: adds a soft depth */
+}
+/*i changet the boarders*/
 .product-images {
-  margin: 0 20px;
+    margin: 0 20px;
+    border-radius: 12px;
+    overflow: hidden;   /* Ensures the image doesn't "leak" past the rounded corners */
 }
 /* Social feed */
 .social-feed-separated .social-feed-box {
@@ -7891,6 +7925,8 @@ body.body-small .vote-icon {
     opacity: 1;
   }
 }
+/* If your content is inside .ibox */
+
 .ibox-content > .sk-spinner {
   display: none;
 }
