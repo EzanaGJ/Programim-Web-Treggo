@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 //delete later
 $_SESSION['user_id'] = 6;
 
+
 $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
 
 if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === 0) {
@@ -30,6 +31,32 @@ if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === 0) {
 
 // Handle AJAX POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if(isset($_POST['new_password'], $_POST['current_password'])) {
+        $current_password = $_POST['current_password'];
+        $new_password = $_POST['new_password'];
+
+        $query = "SELECT password FROM users WHERE id='$user_id'";
+        $result = mysqli_query($conn, $query);
+
+        if($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            if(password_verify($current_password, $row['password'])) {
+                $hashed_new = password_hash($new_password, PASSWORD_DEFAULT);
+                $sql_pw = "UPDATE users SET password='$hashed_new' WHERE id='$user_id'";
+                if(mysqli_query($conn, $sql_pw)) {
+                    echo json_encode(['status' => 'success', 'message' => 'Password updated successfully!']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Database error: '.mysqli_error($conn)]);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Current password is incorrect!']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'User not found!']);
+        }
+        exit;
+    }
+
     $first_name = mysqli_real_escape_string($conn, $_POST['first_name']);
     $last_name  = mysqli_real_escape_string($conn, $_POST['last_name']);
     $email      = mysqli_real_escape_string($conn, $_POST['email']);
@@ -85,8 +112,14 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
     <div class="profile-card shadow-lg">
 
         <div class="profile-header">
-            <img src="uploads/<?php echo htmlspecialchars(isset($user['profile_pic']) ? $user['profile_pic'] : 'default-user.png'); ?>"
-                 alt="Profile Photo" class="profile-photo">
+            <img src="uploads/<?php
+            echo htmlspecialchars(
+                    !empty($user['profile_pic'])
+                            ? $user['profile_pic'] . '?v=' . time()
+                            : 'default-user.png'
+            );
+            ?>" alt="Profile Photo" class="profile-photo">
+
 
             <div>
                 <h3><?php echo htmlspecialchars($user['name'] . ' ' . $user['surname']); ?></h3>
@@ -152,6 +185,53 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
         <button class="btn btn-warning">
             <i class="fa fa-lock"></i> Change password
         </button>
+        <!-- PASSWORD MODAL -->
+        <div id="passwordModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h5>Change Password</h5>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <div class="input-group">
+                            <input type="password" id="current_password" name="current_password" class="form-control" required>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-secondary toggle-password" data-target="#current_password">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="input-group">
+                            <input type="password" id="new_password" name="new_password" class="form-control" required>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-secondary toggle-password" data-target="#new_password">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-secondary toggle-password" data-target="#confirm_password">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="savePasswordBtn" class="btn btn-success mt-2">Save</button>
+                </form>
+                <p id="passwordMessage" class="alert alert-success mt-2 py-2 px-3" style="display:none;">✔ Password changed successfully</p>
+                <p id="passwordError" class="alert alert-danger mt-2 py-2 px-3" style="display:none;"></p>
+            </div>
+        </div>
+
+        <style>
+            .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; }
+            .modal-content { background:#fff; padding:20px; border-radius:8px; width: 350px; position:relative; }
+            .modal .close { position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; }
+            .input-group-append button { border-radius:0 4px 4px 0; }
+        </style>
+
 
     </div>
 </div>
@@ -220,5 +300,52 @@ require_once "includes/no_login/footer.php";
             }
         });
     }
-</script>
+    // ===== OPEN/CLOSE MODAL =====
+    $(".btn-warning").click(function() {
+        $("#passwordModal").fadeIn();
+        $("#passwordError").hide();
+    });
+    $(".modal .close").click(function() { $("#passwordModal").fadeOut(); });
 
+    // ===== SHOW/HIDE PASSWORD =====
+    $(".toggle-password").click(function() {
+        var target = $($(this).data("target"));
+        if(target.attr("type") === "password") target.attr("type","text");
+        else target.attr("type","password");
+    });
+
+    // ===== AJAX PASSWORD SAVE =====
+    $("#savePasswordBtn").click(function() {
+        var current_pw = $("#current_password").val();
+        var new_pw = $("#new_password").val();
+        var confirm_pw = $("#confirm_password").val();
+
+        $("#passwordError").hide();
+
+        if(new_pw.length < 6) { $("#passwordError").text("New password must be at least 6 characters").fadeIn(); return; }
+        if(new_pw !== confirm_pw) { $("#passwordError").text("Passwords do not match").fadeIn(); return; }
+
+        $.ajax({
+            type: "POST",
+            url: "profile.php",
+            data: {
+                current_password: current_pw,
+                new_password: new_pw
+            },
+            success: function(response) {
+                response = JSON.parse(response);
+                if(response.status === "success") {
+                    $("#passwordMessage").fadeIn().delay(2000).fadeOut();
+                    setTimeout(function() {
+                        $("#passwordModal").fadeOut();
+                        $("#current_password, #new_password, #confirm_password").val('');
+                    }, 2000);
+                } else {
+                    $("#passwordError").text(response.message).fadeIn();
+                }
+            },
+            error: function() { $("#passwordError").text("Something went wrong!").fadeIn(); }
+        });
+    });
+
+</script>
