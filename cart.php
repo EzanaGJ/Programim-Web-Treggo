@@ -1,17 +1,14 @@
 <?php
 require_once "includes/login/menu.php";
-require_once "config/connect.php"; // lidhja me databazën
-
-
 ?>
-<body>
+
     <div id="page-wrapper" class="gray-bg">
 
         <div class="wrapper wrapper-content animated fadeInRight">
             <div>
                 <div class="ibox">
                     <div class="ibox-title">
-                        <h5>Cart Summary</h5>
+                        <h5>Shopping Cart Summary</h5>
                     </div>
 
                     <div class="ibox-content">

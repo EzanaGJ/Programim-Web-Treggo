@@ -1,6 +1,5 @@
 <?php
 require_once "includes/login/menu.php";
-require_once "config/connect.php"; // lidhja me databazën
 
 
 ?>
