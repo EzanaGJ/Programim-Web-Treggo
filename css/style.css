@@ -9716,3 +9716,102 @@ body.md-skin {
     margin: 0;
   }
 }
+
+.navbar-static-side,
+.navbar-default {
+    display: none !important;
+}
+
+#page-wrapper {
+    margin-left: 0 !important;
+}
+
+.shoping-cart-table tbody tr {
+    transition: all 0.25s ease-in-out;
+}
+
+/*Icons */
+.m-t-sm a {
+    transition: all 0.5s ease;
+}
+
+.m-t-sm a:hover {
+    color: #1ab394;
+    transform: translateX(5px);
+}
+
+
+
+
+/* Produkt si card */
+.shoping-cart-table tbody tr {
+    background: #ffffff;
+    border-radius: 12px;
+    transition: all 0.35s ease;
+    position: relative;
+}
+
+/* Hover efekt */
+.shoping-cart-table tbody tr:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+
+.shoping-cart-table tbody tr:hover::before {
+    opacity: 1;
+}
+
+/* Hiq border & vijat */
+.shoping-cart-table td {
+    border: none !important;
+    vertical-align: middle;
+}
+
+/* Hapësirë mes produkteve */
+.shoping-cart-table {
+    border-collapse: separate;
+    border-spacing: 0 18px;
+}
+
+/* Cursor pointer */
+.shoping-cart-table tbody tr {
+    cursor: pointer;
+}
+
+
+/* Efekt kur cursor është remove item*/
+.remove-item:hover {
+    color: #e74c3c; /* ngjyrë e kuqe */
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Efekt kur klikohet (klik animation) */
+.remove-item:active {
+    transform: scale(0.9); /* pak tkurrje vizuale */
+    color: #c0392b;
+    transition: all 0.1s ease;
+}
+
+
+/* Stili bazë për kartat */
+.payment-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.35s ease;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* hije e lehtë fillimisht */
+}
+
+/* Hover efekt */
+.payment-card:hover {
+    transform: translateY(-8px); /* ngritja pak lart */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15); /* hije më e madhe */
+}
+
+
+
