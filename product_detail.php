@@ -41,7 +41,7 @@ $product = mysqli_fetch_assoc($result);
                     <div class="product-images">
                         <div>
                             <div class="image-imitation">
-                                <img src="<?= $product['img'] ?>" alt="<?= $product['name'] ?>" style="width:100%; height:300px; object-fit:cover;">
+                                <img src="<?= $product['img'] ?>" alt="<?= $product['name'] ?>"style="width:100%; height:auto; max-height:500px; object-fit:scale-down;">
                             </div>
                         </div>
                     </div>

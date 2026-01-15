@@ -2260,19 +2260,19 @@ button.dim:active:before {
 }
 /* TOOLTIPS */
 .tooltip-inner {
-  background-color: #2f4050;
+  background-color: #ffffff;
 }
 .tooltip.top .tooltip-arrow {
-  border-top-color: #2f4050;
+  border-top-color: #ffffff;
 }
 .tooltip.right .tooltip-arrow {
-  border-right-color: #2f4050;
+  border-right-color: #ffffff;
 }
 .tooltip.bottom .tooltip-arrow {
-  border-bottom-color: #2f4050;
+  border-bottom-color: #ffffff;
 }
 .tooltip.left .tooltip-arrow {
-  border-left-color: #2f4050;
+  border-left-color: #ffffff;
 }
 /* EASY PIE CHART*/
 .easypiechart {
@@ -4417,10 +4417,10 @@ samp {
   padding: 12px 10px;
   margin: 0;
   border-radius: 0;
-  background: #2f4050;
+  background: #ffffff;
   color: #fff;
   text-align: center;
-  border-right: 1px solid #334556;
+  border-right: 1px solid #ffffff;
 }
 .sidebar-container ul.nav-tabs li.active a {
   border: none;
@@ -4490,9 +4490,9 @@ samp {
 }
 body {
   font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #2f4050;
+  background-color: #ffffff;
   font-size: 13px;
-  color: #676a6c;
+  color: #2f4050;
   overflow-x: hidden;
 }
 html,
@@ -4510,7 +4510,7 @@ body.boxed-layout {
   background: url('patterns/shattered.png');
 }
 body.boxed-layout #wrapper {
-  background-color: #2f4050;
+  background-color: #ffffff;
   max-width: 1200px;
   margin: 0 auto;
   -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
@@ -4592,7 +4592,7 @@ video {
   z-index: 2020;
 }
 .note-editor.note-frame .note-editing-area .note-editable {
-  color: #676a6c;
+  color: #ffffff;
   padding: 15px;
 }
 .note-editor.note-frame {
@@ -4843,7 +4843,7 @@ body.body-small .footer.fixed {
 }
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
-  color: #676a6c;
+  color: #ffffff;
 }
 .ui-tab .tab-content {
   padding: 20px 0;
@@ -6290,7 +6290,7 @@ dd.project-people {
 }
 .project-title a {
   font-size: 14px;
-  color: #676a6c;
+  color: #2f4050;
   font-weight: 600;
 }
 .project-list table tr td {
@@ -6312,7 +6312,7 @@ dd.project-people {
 }
 .project-files li a {
   font-size: 11px;
-  color: #676a6c;
+  color: #ffffff;
   margin-left: 10px;
   line-height: 22px;
 }
@@ -6699,28 +6699,42 @@ table.shoping-cart-table tr td:last-child {
 .product-detail .ibox-content {
   padding: 30px 30px 50px 30px;
 }
-.image-imitation {
-  background-color: #f8f8f9;
-  text-align: center;
-  padding: 200px 0;
+
+/* Container for the image */
+.product-imitation {
+    padding: 0 !important;
+    overflow: hidden;
+    /* This forces the container to stay a perfect square */
+    aspect-ratio: 1 / 1;
+    width: 100%;
+}
+
+.product-imitation img {
+    width: 100%;
+    height: 100%;
+    /* This ensures the photo fills the square without being squished */
+    object-fit: cover;
+    display: block;
 }
 .product-main-price small {
   font-size: 10px;
 }
-.product-container {
-    background-color: #ffffff; /* The white box */
-    padding: 20px;             /* Space inside the box so content doesn't touch edges */
-    margin: 20px auto;         /* Centers the box and adds space outside */
-    border-radius: 8px;        /* Matches your "slightly round" request */
-    max-width: 1200px;         /* Prevents the box from stretching too wide */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Optional: adds a soft depth */
+.product-imitation {
+    padding: 0 !important;
+    height: 220px;              /* fixed card image area */
+    background-color: #f8f8f9;  /* fills empty space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-/*i changet the boarders*/
-.product-images {
-    margin: 0 20px;
-    border-radius: 12px;
-    overflow: hidden;   /* Ensures the image doesn't "leak" past the rounded corners */
+
+.product-imitation img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;        /* 🔴 NO CROPPING */
+    display: block;
 }
+
 /* Social feed */
 .social-feed-separated .social-feed-box {
   margin-left: 62px;
@@ -6915,7 +6929,7 @@ body.body-small .vote-icon {
   display: block;
 }
 .small-chat-box .heading {
-  background: #2f4050;
+  background: #ffffff;
   padding: 8px 15px;
   font-weight: bold;
   color: #fff;
