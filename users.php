@@ -4,16 +4,6 @@ session_start();
 require_once "connect.php";
 
 
-// 1️⃣ Kontrollo nëse user është loguar
-if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
-    exit;
-}
-// 3️⃣ Redirect sipas role_id
-if ($_SESSION['role_id'] != 1) { // 1 = admin
-    header("Location: menu.php"); // user normal shkon te menu.php
-    exit;
-}
 // DEMO ADMIN SESSION
 if (!isset($_SESSION['role_id'])) {
     $_SESSION['user_id'] = 1;
@@ -71,9 +61,9 @@ function getRoleName($role_id) {
 <div class="mb-4 p-3 rounded shadow-sm d-flex justify-content-between align-items-center"
      style="background:#1b4332; color:white;">
     <h4 class="mb-0">🛠 Admin Dashboard</h4>
-<!--    <span class="badge badge-light px-3 py-2">-->
-<!--        --><?php //= $_SESSION['name'] . " " . $_SESSION['surname'] ?>
-<!--    </span>-->
+    <span class="badge badge-light px-3 py-2">
+<?php // = $_SESSION['name'] . " " . $_SESSION['surname'] ?>
+  </span>
 </div>
 
 <div class="container-fluid">
