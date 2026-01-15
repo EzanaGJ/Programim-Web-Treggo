@@ -1,181 +1,170 @@
-
 <?php
-require_once "includes/no_login/header.php";
 session_start();
-?>
-<nav id="mainMenu" style="display: none;">
-    <?php
-    if(isset($_SESSION['id'])) {
-        include "includes/login/menu.php";
+require_once "connect.php";
+require_once "functions.php";
+require_once "includes/no_login/header.php";
+
+if(isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $query = "SELECT id, email, password, role_id FROM users WHERE email='$email'";
+    $result = mysqli_query($conn, $query);
+
+    if(mysqli_num_rows($result) == 1){
+        $user = mysqli_fetch_assoc($result);
+        if(password_verify($password, $user['password'])){
+            $_SESSION['id'] = $user['id'];
+            $_SESSION['role_id'] = $user['role_id'];
+
+            if($user['role_id'] == 1){
+                header("Location: users.php");
+            } else {
+                header("Location: menu.php");
+            }
+            exit;
+        } else {
+            echo "Password gabim!";
+        }
+    } else {
+        echo "Email nuk ekziston!";
     }
-    ?>
-</nav>
-<div class="middle-box text-center loginscreen p-5 white-bg shadow-lg animated fadeInDown">
+}
+?>
 <body class="gray-bg">
 
+<div class="middle-box text-center loginscreen p-5 white-bg shadow-lg animated fadeInDown">
     <div>
-
         <h1 class="logo-name">Treggo</h1>
-
         <h3>Welcome Back</h3>
-        <p>Discover and buy products easily with Treggo </p>
+        <p>Discover and buy products easily with Treggo</p>
 
-        <form id="loginForm">
-
+        <!-- Forma e thjeshtë me POST -->
+        <form method="POST" id="loginForm">
             <div class="form-group">
-                <input type="email"
-                       id="loginEmailId"
-                       class="form-control"
-                       placeholder="Email">
-                <span id="login_email_messageId" class="text-danger"></span>
+                <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>
+                <span id="email_message" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <input type="password"
-                       id="loginPasswordId"
-                       class="form-control"
-                       placeholder="Password">
-                <span id="login_password_messageId" class="text-danger"></span>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+                <span id="password_message" class="text-danger"></span>
             </div>
 
             <div class="form-group text-left">
                 <label>
-                    <input type="checkbox" id="rememberId"> Remember me
+                    <input type="checkbox" id="rememberId" name="rememberId"> Remember me
                 </label>
             </div>
 
-            <button type="button"
-                    class="btn btn-primary block full-width m-b"
-                    onclick="login()">
-                Login
-            </button>
+            <button type="submit" name="login" class="btn btn-primary btn-block">Login</button>
 
-            <a href="forgotpassword.php">
-                <small>Forgot password?</small>
-            </a>
+            <a href="forgotpassword.php"><small>Forgot password?</small></a>
 
-            <p class="text-muted text-center">
-                <small>Don't have an account?</small>
-            </p>
+            <p class="text-muted text-center"><small>Don't have an account?</small></p>
 
-            <a class="btn btn-sm btn-white btn-block" href="register.php">
-                Create an account
-            </a>
-
+            <a class="btn btn-sm btn-white btn-block" href="register.php">Create an account</a>
         </form>
 
         <p class="m-t">
             <small>© 2025 Treggo | Designed by <strong>EMM'S</strong></small>
         </p>
-
     </div>
 </div>
 
-<?php
-include "includes/login/footer.php";
+
+
+
+
+
+
+
+
+    <?php include "includes/login/footer.php";
+
 ?>
 
-
 <script>
-    toastr.options = {
-        "closeButton": true,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "timeOut": "5000"
-    };
-
-    // validimi FRONTEND
-    function login() {
-
-        var email = $("#loginEmailId").val();
-        var password = $("#loginPasswordId").val();
-        var remember = $("#rememberId").is(":checked") ? 1 : 0;
-
+    function login(){
+        var email = $("#email").val();
+        var password = $("#password").val();
         var email_regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         var error = 0;
 
-        // EMAIL validation
-        if (!email_regex.test(email)) {
-            $("#loginEmailId").addClass("border-danger");
-            $("#login_email_messageId").text("Please enter a valid email");
+        // Validation of the E-Mail
+        if (!email_regex.test(email)){
+            $("#email").addClass("border-danger");
+            $("#email_message").text("E-Mail format is not allowed");
             error++;
         } else {
-            $("#loginEmailId").removeClass("border-danger");
-            $("#login_email_messageId").text("");
+            $("#email").removeClass("border-danger")
+            $("#email_message").text("");
         }
 
-        // PASSWORD validation
-        if (password.length < 6) {
-            $("#loginPasswordId").addClass("border-danger");
-            $("#login_password_messageId").text("Password must be at least 6 characters");
-            error++;
-        } else {
-            $("#loginPasswordId").removeClass("border-danger");
-            $("#login_password_messageId").text("");
+        // Validation of the Password
+        if (isEmpty(password)){
+            $("#password").addClass("border-danger");
+            $("#password_message").text("Password can not be empty");
+        } else{
+            $("#password").removeClass("border-danger")
+            $("#password_message").text("");
         }
 
-        // Nëse ka gabime, ndalohet submit
-        if (error > 0) {
-            return false;
-        }
 
-        // AJAX request
         var data = new FormData();
         data.append("action", "login");
         data.append("email", email);
         data.append("password", password);
-        data.append("remember", remember);
 
-        $.ajax({
-            type: "POST",
-            url: "ajax.php",
-            data: data,
-            dataType: "json",
-            processData: false,
-            contentType: false,
-            success: function (response, textStatus, xhr) {
-                // përdorim statusin e HTTP për të kontrolluar
-                if (xhr.status === 200) {
-                    toastr.success(response.message);
-                    setTimeout(() => {
-                        window.location.href = response.location;
-                    }, 1500);
-                } else {
-                    toastr.error(response.message || "Something went wrong");
-                }
-            },
-            error: function(xhr) {
-                // për raste kur AJAX dështon (server error)
-                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Server error";
-                toastr.error(msg);
-            }
-            }
-        });
+
+        // send data on backed
+        if (error == 0) {
+            $.ajax({
+                type: "POST",
+                url: "ajax.php",
+                async: false,
+                cache: false,
+                processData: false,
+                data: data,
+                contentType: false,
+                success: function (response, status, call) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    if (call.status == 200) {
+                        window.location.href = response.location
+                    } else {
+                        toastr["warning"](response.message, "Warning");
+                    }
+                },
+            })
+        }
     }
+
 
 </script>
 
 
 
-    <style>
-        body, html {
-            height: 100%;
-            background-color: #f3f3f4;
-        }
-        .middle-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .logo-name {
-            font-size: 80px;
-            font-weight: bold;
-            color: rgba(26,179,148,0.3);
-        }
-        form {
-            width: 400px;
-            margin: auto;
-        }
-    </style>
+<style>
+    body, html {
+        height: 100%;
+        background-color: #f3f3f4;
+    }
+    .middle-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+    }
+    .logo-name {
+        font-size: 80px;
+        font-weight: bold;
+        color: rgba(26,179,148,0.3);
+    }
+    form {
+        width: 400px;
+        margin: auto;
+    }
+</style>
+
