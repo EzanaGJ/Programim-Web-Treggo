@@ -9,8 +9,6 @@ if (!isset($_SESSION['role_id'])) {
     $_SESSION['email'] = 'admin@example.com';
 }
 
-
-
 if ($_SESSION['role_id'] !== 1) {
     header("Location: profile.php");
      exit;

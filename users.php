@@ -1,8 +1,6 @@
 <?php
 global $conn;
-session_start();
 require_once "connect.php";
-
 
 // DEMO ADMIN SESSION
 if (!isset($_SESSION['role_id'])) {
@@ -12,10 +10,10 @@ if (!isset($_SESSION['role_id'])) {
     $_SESSION['surname'] = "Admin";
     $_SESSION['email'] = "admin@treggo.com";
 }
-
+require_once "includes/login/header.php";
 //if ($_SESSION['role_id'] !== 1) {
-//    header("Location: profile.php");
-//    exit;
+  //  header("Location: profile.php");
+    //exit;
 //}
 
 $query_users = "SELECT id, name, surname, email, role_id, email_verified, created_at FROM users";
@@ -31,33 +29,8 @@ function getRoleName($role_id) {
     return $role_id == 1 ? "Admin" : "User";
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Treggo Users</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css">
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f0f7f5; padding:30px; }
-        h2 { color:#2b7a4b; font-weight:600; }
-
-        .btn-edit { background:#ffe066; color:#333; border:none; border-radius:6px; padding:5px 10px; margin-right:5px; }
-        .btn-edit:hover { background:#ffd43b; }
-
-        .btn-delete { background:#ff6b6b; color:#fff; border:none; border-radius:6px; padding:5px 10px; }
-        .btn-delete:hover { background:#fa5252; }
-        .btn-add-user { background: #a7d7a7; color: #fff; border:none; border-radius:8px; padding:8px 16px; font-weight:500; }
-        .btn-add-user:hover { background: #86c186; }
-        .table thead th { border:none; font-weight:600; }
-        .table tbody tr:hover { background: #e6f2ed; }
-
-    </style>
-</head>
-<body>
+<body class="roles-page">
 <div class="mb-4 p-3 rounded shadow-sm d-flex justify-content-between align-items-center"
      style="background:#1b4332; color:white;">
     <h4 class="mb-0">🛠 Admin Dashboard</h4>
@@ -69,10 +42,17 @@ function getRoleName($role_id) {
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Treggo Users</h2>
-        <button type="button" class="btn btn-add-user" data-toggle="modal" data-target="#addUserModal">
-            <i class="fa fa-plus"></i> Add User
-        </button>
+        <div class="d-flex gap-2">
+            <a href="roles.php" class="btn btn-add-user mr-2">
+                <i class="fa fa-user-shield"></i> Roles
+            </a>
+
+            <button type="button" class="btn btn-add-user" data-toggle="modal" data-target="#addUserModal">
+                <i class="fa fa-plus"></i> Add User
+            </button>
+        </div>
     </div>
+
 
     <div class="bg-white p-3 rounded shadow-sm">
         <table class="table table-striped table-bordered user-list-table" style="width:100%;">
