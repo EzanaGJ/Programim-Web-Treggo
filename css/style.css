@@ -1009,7 +1009,7 @@ h5 {
 }
 .navbar-default {
   background-color: transparent;
-  border-color: #ffffff;
+  border-color: #2f4050;
 }
 .navbar-top-links li {
   display: inline-block;
@@ -1116,7 +1116,7 @@ h5 {
 }
 .nav-header {
   padding: 33px 25px;
-  background-color: #ffffff;
+  background-color: #2f4050;
   background-image: url("patterns/header-profile.png");
 }
 .caret {
@@ -1258,7 +1258,7 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
   position: absolute;
   left: 70px;
   top: 0;
-  background-color: #ffffff;
+  background-color: #2f4050;
   padding: 10px 10px 10px 10px;
   font-size: 12px;
 }
@@ -1490,7 +1490,7 @@ body.canvas-menu.mini-navbar .navbar-default .nav li .profile-element a span {
 }
 body.canvas-menu nav.navbar-static-side {
   z-index: 2001;
-  background: #ffffff;
+  background: #2f4050;
   height: 100%;
   position: fixed;
   display: none;
@@ -4491,7 +4491,7 @@ body {
   font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #ffffff;
   font-size: 13px;
-  color: #ffffff;
+  color: #2f4050;
   overflow-x: hidden;
 }
 html,
@@ -6289,7 +6289,7 @@ dd.project-people {
 }
 .project-title a {
   font-size: 14px;
-  color: #ffffff;
+  color: #2f4050;
   font-weight: 600;
 }
 .project-list table tr td {
@@ -6510,7 +6510,7 @@ dd.project-people {
 .article h1 {
   font-size: 48px;
   font-weight: 700;
-  color: #ffffff;
+  color: #2f4050;
 }
 .article p {
   font-size: 15px;
