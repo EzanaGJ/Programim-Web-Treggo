@@ -57,7 +57,7 @@ if ($action === "delete_user") {
 }
 
 //add user
-
+//add user
 if ($action === "add_user") {
     $name = mysqli_real_escape_string($conn,$_POST['name']);
     $surname = mysqli_real_escape_string($conn,$_POST['surname']);
@@ -75,8 +75,12 @@ if ($action === "add_user") {
         exit;
     }
 
+    // Hash the default password
+    $default_password = '12345678';
+    $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
+
     $q = "INSERT INTO users (name, surname, email, role_id, password)
-          VALUES ('$name','$surname','$email',$role_id,'123456')";
+          VALUES ('$name','$surname','$email',$role_id,'$hashed_password')";
 
     if (mysqli_query($conn,$q)) {
         echo json_encode([
@@ -91,5 +95,3 @@ if ($action === "add_user") {
     }
     exit;
 }
-
-

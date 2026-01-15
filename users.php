@@ -197,10 +197,11 @@ function getRoleName($role_id) {
 
         var table = $('.user-list-table').DataTable({
         pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
         responsive: true,
         dom: 'Bfrtip',
         buttons: ['copy','csv','excel','pdf','print']
-    });
+        });
 
         // Edit
         $(document).on('click', '.btn-edit', function(){
