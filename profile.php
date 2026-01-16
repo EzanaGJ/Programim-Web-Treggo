@@ -12,7 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 //delete later
 $_SESSION['user_id'] = 11;
 
-
 $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
 
 if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === 0) {

@@ -2,8 +2,93 @@
 global $conn;
 require_once "connect.php";
 require_once "functions.php";
+error_reporting(0);
 
-if ($_POST["action"] == "register") {
+if ($_POST["action"] == "login") {
+
+    // 1. Merr të dhënat
+    $email = mysqli_real_escape_string($conn, $_POST["email"]);
+    $password = mysqli_real_escape_string($conn, $_POST["password"]);
+    $email_regex = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
+
+    /**
+     * Data Validation
+     */
+    if (!preg_match($email_regex, $email)) {
+        http_response_code(201);
+        echo json_encode(["message" => "E-Mail format is not allowed"]);
+        exit;
+    }
+
+    if (empty($password)) {
+        http_response_code(201);
+        echo json_encode(["message" => "Password can not be empty"]);
+        exit;
+    }
+
+    /**
+     * Kontrollo në DB
+     */
+    $query_check = "
+        SELECT id, 
+               email,
+               role_id,
+               password
+        FROM users
+        WHERE email = '$email'
+        LIMIT 1;
+    ";
+
+    $result_check = mysqli_query($conn, $query_check);
+
+    if (!$result_check) {
+        http_response_code(202);
+        echo json_encode([
+            "message" => "There is an error on Database",
+            "error" => mysqli_error($conn),
+            "error_number" => mysqli_errno($conn)
+        ]);
+        exit;
+    }
+
+    if (mysqli_num_rows($result_check) == 0) {
+        http_response_code(201);
+        echo json_encode(["message" => "There is no user with that E-Mail"]);
+        exit;
+    }
+
+    $results = mysqli_fetch_assoc($result_check);
+
+    // Kontrolli i password-it
+    if (!password_verify($password, $results["password"])) {
+        http_response_code(201);
+        echo json_encode(["message" => "Incorrect Password"]);
+        exit;
+    }
+
+    /**
+     * Session
+     */
+    session_start();
+    $_SESSION["id"] = $results["id"];
+    $_SESSION["email"] = $results["email"];
+    $_SESSION["role_id"] = $results["role_id"];
+
+    // Redirect sipas role_id
+    $location = "menu.php"; // default user
+    if ($results["role_id"] == 1) {
+        $location = "menu.php"; // admin
+    }
+
+    http_response_code(200);
+    echo json_encode([
+        "message" => "User logged in successfully",
+        "location" => $location
+    ]);
+    exit;
+}
+
+else if ($_POST["action"] == "register") {
 
     $name = mysqli_real_escape_string($conn, $_POST["name"]);
     $surname = mysqli_real_escape_string($conn, $_POST["surname"]);

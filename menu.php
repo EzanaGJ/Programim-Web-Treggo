@@ -5,11 +5,15 @@ session_start();
 
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: loginn.php");
     exit;
 }
 ?>
 -->
+<?php
+session_start(); // gjithmonë session_start() në fillim
+require_once "connect.php";
+?>
 
 <!DOCTYPE html>
 <html lang="en">

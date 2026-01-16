@@ -45,3 +45,21 @@ if ($now < $valid_datetime) {
 } else{
     echo "<h1>Token is not valid</h1>";
 }
+
+if (password_verify($_POST['password'], $results['password'])) {
+    // Password i saktë → vazhdo login
+    session_start();
+    $_SESSION['id'] = $results['id'];
+    $_SESSION['role_id'] = $results['role_id'];
+    // redirect sipas role
+    if ($results['role_id'] == 1) {
+        header("Location: admin.php");
+    } else {
+        header("Location: menu.php");
+    }
+    exit;
+} else {
+    // Password gabim
+    echo json_encode(["message" => "Incorrect Password"]);
+    exit;
+}
