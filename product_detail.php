@@ -79,7 +79,7 @@ $product = mysqli_fetch_assoc($result);
 
                     <div class="btn-group">
                         <button class="btn btn-primary btn-sm"><i class="fa fa-cart-plus"></i> Add to cart</button>
-                        <button class="btn btn-xs btn-outline btn-danger"><i class="fa fa-heart"></i> Add to favorites</button>
+                        <button class="btn btn-sm btn-outline btn-danger"><i class="fa fa-heart"></i> Add to favorites</button>
                     </div>
 
                 </div>
