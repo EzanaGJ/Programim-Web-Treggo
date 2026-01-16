@@ -4164,12 +4164,13 @@ a.forum-item-title:hover {
   line-height: 20px;
   padding-left: 3px;
 }
+
 /*Slick Carousel */
-.slick-prev:before,
-.slick-next:before {
-  color: #1ab394 !important;
-}
-/* Payments */
+/*.slick-prev:before,*/
+/*.slick-next:before {*/
+/*  color: #1ab394 !important;*/
+/*}*/
+/*!* Payments *!*/
 .payment-card {
   background: #ffffff;
   padding: 20px;
@@ -6646,9 +6647,31 @@ del {
   background-color: #ffc6c6;
 }
 /* E-commerce */
+/*.product-box {*/
+/*  padding: 0;*/
+/*  border: 1px solid #e7eaec;*/
+/*}*/
+
+/*.product-box:hover {*/
+/*    transform: translateY(-5px); !* Lift effect *!*/
+/*    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); !* Deeper shadow on hover *!*/
+/*}*/
+.product-detail-name{
+color:#1ab394 ;
+}
 .product-box {
-  padding: 0;
-  border: 1px solid #e7eaec;
+    padding: 0;
+    border: none; /* Remove the gray line */
+    background: #ffffff;
+    border-radius: 12px; /* Smooth corners */
+    overflow: hidden; /* Ensures image and text don't spill over rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Very subtle shadow */
+    transition: all 0.3s ease; /* Smooth hover transition */
+}
+
+.product-box:hover {
+    transform: translateY(-5px); /* Lift effect */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); /* Deeper shadow on hover */
 }
 .product-box:hover,
 .product-box.active {
@@ -6728,17 +6751,42 @@ table.shoping-cart-table tr td:last-child {
 .product-detail .ibox-content {
   padding: 30px 30px 50px 30px;
 }
-.image-imitation {
-  background-color: #f8f8f9;
-  text-align: center;
-  padding: 200px 0;
+
+/* Container for the image */
+.product-imitation {
+    padding: 0 !important;
+    overflow: hidden;
+    /* This forces the container to stay a perfect square */
+    aspect-ratio: 1 / 1;
+    width: 100%;
+}
+
+.product-imitation img {
+    width: 100%;
+    height: 100%;
+    /* This ensures the photo fills the square without being squished */
+    object-fit: cover;
+    display: block;
 }
 .product-main-price small {
   font-size: 10px;
 }
-.product-images {
-  margin: 0 20px;
+.product-imitation {
+    padding: 0 !important;
+    height: 220px;              /* fixed card image area *//
+    background-color: #f8f8f9;  /* fills empty space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.product-imitation img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;        /* 🔴 NO CROPPING */
+    display: block;
+}
+
 /* Social feed */
 .social-feed-separated .social-feed-box {
   margin-left: 62px;
@@ -7943,6 +7991,8 @@ body.body-small .vote-icon {
     opacity: 1;
   }
 }
+/* If your content is inside .ibox */
+
 .ibox-content > .sk-spinner {
   display: none;
 }
