@@ -40,7 +40,7 @@ require_once "connect.php";
 <body>
 
 <div class="container-fluid p-0">
-    <!-- Top Navbar -->
+    <!-- Top Navbar -- -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand logo " href="#">Treggo</a>
 

@@ -4,7 +4,7 @@ session_start();
 require_once "connect.php";
 require_once "menu.php";
 
-// Get product ID from URL
+// Get product ID from URL --
 $product_id = $_GET['id'] ?? null;
 if (!$product_id) {
     echo "Product not found";

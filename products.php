@@ -57,7 +57,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <?php foreach ($products as $product) { ?>
             <div class="col-md-3">
                 <div class="ibox">
-<!--                    changed product-box-->
+<!--                    changed product--box -->
                     <a href="product_detail.php?id=<?= $product['id'] ?>" style="text-decoration:none; color:inherit;">
                     <div class="ibox-content product-box">
                         <div class="product-imitation">

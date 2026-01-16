@@ -2,7 +2,7 @@
 global $conn;
 echo "<h1>Verify the E-Mail</h1>";
 
-require_once "connect.php";
+require_once "dbconnect.php";
 
 $user_id = $_GET['id'];
 $email_token = $_GET['token'];
@@ -42,11 +42,11 @@ if ($now < $valid_datetime) {
         exit;
     }
     echo "<h1>E-Mail verified successfully</h1>";
-} else{
+} else {
     echo "<h1>Token is not valid</h1>";
 }
 
-if (password_verify($_POST['password'], $results['password'])) {
+    if (password_verify($_POST['password'], $results['password'])) {
     // Password i saktë → vazhdo login
     session_start();
     $_SESSION['id'] = $results['id'];

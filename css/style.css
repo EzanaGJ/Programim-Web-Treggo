@@ -6773,7 +6773,7 @@ table.shoping-cart-table tr td:last-child {
 }
 .product-imitation {
     padding: 0 !important;
-    height: 220px;              /* fixed card image area */
+    height: 220px;              /* fixed card image area *//
     background-color: #f8f8f9;  /* fills empty space */
     display: flex;
     align-items: center;
