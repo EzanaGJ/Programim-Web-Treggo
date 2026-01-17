@@ -1,43 +1,6 @@
-
-<!-- TO DO :  Redirect to login if user not logged in
-<
-session_start();
-
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: loginn.php");
-    exit;
-}
-?>
--->
 <?php
-session_start(); // gjithmonë session_start() në fillim
-require_once "connect.php";
+require_once "includes/login/top_menu.php";
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treggo | Main Menu</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: white;
-        }
-    </style>
-</head>
-<body>
 
 <div class="container-fluid p-0">
     <!-- Top Navbar -- -->

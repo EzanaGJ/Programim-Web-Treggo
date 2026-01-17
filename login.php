@@ -1,5 +1,6 @@
 <?php
 
+global $conn;
 session_start();
 require_once "connect.php";
 require_once "functions.php";
@@ -21,7 +22,7 @@ if(isset($_POST['login'])) {
             if($user['role_id'] == 1){
                 header("Location: users.php");
             } else {
-                header("Location: menu.php");
+                header("Location: products.php");
             }
             exit;
         } else {

@@ -1,7 +1,7 @@
 <?php
 global $conn;
-session_start();
 require_once "connect.php";
+require_once "includes/login/header.php";
 
 /*
 if (!isset($_SESSION['user_id'])) {
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 */
 //delete later
-$_SESSION['user_id'] = 11;
+$_SESSION['user_id'] = 1;
 
 $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
 

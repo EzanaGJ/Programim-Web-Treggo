@@ -55,6 +55,6 @@
     <?php
     session_start();
     if(isset($_SESSION['id'])) {
-        include "menu.php"; // tregon menunë për user të loguar
+        include "menu.php";
     }
     ?>
