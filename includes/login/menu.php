@@ -1,3 +1,9 @@
+<?php
+
+if(isset($_SESSION['id'])) {
+    include "menu.php";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,10 +44,10 @@
 
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-envelope"></i></a>
+                <a class="nav-link" href="#"><i class="fa fa-bell"></i></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-bell"></i></a>
+                <a class="nav-link" href="cart.php"><i class="fa fa-shopping-cart"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="profile.php"><i class="fa fa-user"></i> Profile</a>
@@ -52,9 +58,3 @@
         </ul>
     </nav>
 
-    <?php
-    session_start();
-    if(isset($_SESSION['id'])) {
-        include "menu.php";
-    }
-    ?>

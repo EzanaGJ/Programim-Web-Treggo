@@ -1,18 +1,18 @@
 <?php
 global $conn;
+session_start();
 require_once "connect.php";
-require_once "includes/login/header.php";
 
-/*
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        echo json_encode(['status'=>'error','message'=>'Not logged in']);
+        exit;
+    }
     header("Location: login.php");
     exit();
 }
-*/
-//delete later
-$_SESSION['user_id'] = 1;
 
-$user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
+$user_id = (int) $_SESSION['id'];
 
 if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === 0) {
     $ext = pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION);
@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     exit;
 }
+require_once "includes/login/header.php";
 
 $query_user_data = "SELECT * FROM users WHERE id = '$user_id'";
 $result_user_data = mysqli_query($conn, $query_user_data);
@@ -89,27 +90,8 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Treggo | My Profile</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Bootstrap CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-
-</head>
-
-<body>
-
 <div class="container-fluid profile-container">
-
     <div class="profile-card shadow-lg">
-
         <div class="profile-header">
             <img src="uploads/<?php
             echo htmlspecialchars(
@@ -118,7 +100,6 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
                             : 'default-user.png'
             );
             ?>" alt="Profile Photo" class="profile-photo">
-
 
             <div>
                 <h3><?php echo htmlspecialchars($user['name'] . ' ' . $user['surname']); ?></h3>
@@ -132,7 +113,6 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
                 </form>
             </div>
         </div>
-
 
         <hr>
 
@@ -180,7 +160,6 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
         <h5>Security</h5>
         <p class="text-muted">Change your password</p>
 
-        <!-- TODO: implement password change -->
         <button class="btn btn-warning">
             <i class="fa fa-lock"></i> Change password
         </button>
@@ -235,9 +214,9 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
     </div>
 </div>
 <?php
-require_once "includes/no_login/footer.php";
+require_once "includes/login/footer.php";
 ?>
-</body>
+
 <!-- JS -->
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/bootstrap.js"></script>

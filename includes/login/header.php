@@ -1,3 +1,26 @@
+<?php
+global $conn;
+require_once "connect.php";
+require_once "functions.php";
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION["id"]) && !isset($_SESSION["email"])) {
+  $_SESSION = array();
+   session_destroy();
+  header("location:login.php");
+}
+
+$urlPath = $_SERVER['REQUEST_URI'];
+
+// remove the file extension as well
+$filename = basename($urlPath);
+$filenameArray = explode(".", $filename);
+
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -17,35 +40,14 @@
     <!-- Toastr style -->
     <link href="css/plugins/toastr/toastr.min.css" rel="stylesheet">
 
+
+
     <!-- Ladda style -->
     <link href="css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
-
+    <link href="css/style.css" rel="stylesheet">
     <link href="css/animate.css" rel="stylesheet">
 
 
 </head>
 <body>
 <div id="wrapper">
-<?php
-global $conn;
-require_once "connect.php";
-require_once "functions.php";
-//error_reporting(0);
-session_start();
-/**
- * Check if the user is logged in
- */
-//if (!isset($_SESSION["id"]) && !isset($_SESSION["email"])) {
- //   $_SESSION = array();
-//    session_destroy();
- //   header("location:login.php");
-//}
-
-// Example URL path
-$urlPath = $_SERVER['REQUEST_URI'];
-
-// If you want to remove the file extension as well
-$filename = basename($urlPath);
-$filenameArray = explode(".", $filename);
-
-?>
