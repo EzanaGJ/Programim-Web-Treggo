@@ -101,33 +101,4 @@ while ($row = mysqli_fetch_assoc($result)) {
     </footer>
 </div>
 
-<!--Maria add to cart-->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
-    $(".add-to-cart").on("click", function () {
-
-        let product_id = $(this).data("id");
-
-        $.ajax({
-            url: "ajax.php",
-            type: "POST",
-            dataType: "json",
-            data: {
-                action: "add_to_cart",
-                product_id: product_id
-            },
-            success: function (res) {
-                if (res.status === "success") {
-                    alert("Produkti u shtua në shportë ✅");
-                } else {
-                    alert(res.message);
-                }
-            },
-            error: function (xhr) {
-                console.error(xhr.responseText);
-                alert("AJAX error");
-            }
-        });
-    });
-</script>

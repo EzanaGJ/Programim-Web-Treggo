@@ -78,110 +78,79 @@ else if(isset($_POST['action']) && $_POST['action'] == 'login'){
 }
 
 
+else if ($_POST["action"] === "login") {
 
-else if ($_POST["action"] == "login") {
-
-    // 1. Merr të dhënat
-    $email = mysqli_real_escape_string($conn, $_POST["email"]);
-    $password = mysqli_real_escape_string($conn, $_POST["password"]);
+    // 1️⃣ Get data
+    $email = trim($_POST["email"] ?? '');
+    $password = trim($_POST["password"] ?? '');
     $email_regex = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
 
-    /**
-     * Data Validation
-     */
+    // 2️⃣ Validate input
     if (!preg_match($email_regex, $email)) {
-        http_response_code(201);
+        http_response_code(400);
         echo json_encode(["message" => "E-Mail format is not allowed"]);
         exit;
     }
 
     if (empty($password)) {
-        http_response_code(201);
-        echo json_encode(["message" => "Password can not be empty"]);
+        http_response_code(400);
+        echo json_encode(["message" => "Password cannot be empty"]);
         exit;
     }
 
-    /**
-     * 3️⃣ Kontrollo user-in në DB
-     */
-    $query_check = "
-        SELECT id, email, role_id, password
-        FROM users
-        WHERE email = '$email'
-        LIMIT 1
-    ";
-
-    $result_check = mysqli_query($conn, $query_check);
+    // 3️⃣ Check user in DB using prepared statement
+    $stmt = $conn->prepare("SELECT id, email, role_id, password FROM users WHERE email = ? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result_check = $stmt->get_result();
 
     if (!$result_check) {
-        http_response_code(202);
+        http_response_code(500);
         echo json_encode([
-            "message" => "There is an error on Database",
-            "error" => mysqli_error($conn),
-            "error_number" => mysqli_errno($conn)
+            "message" => "Database error",
+            "error" => $conn->error
         ]);
         exit;
     }
 
-    if (mysqli_num_rows($result_check) == 0) {
-        http_response_code(201);
-        echo json_encode(["message" => "There is no user with that E-Mail"]);
+    if ($result_check->num_rows === 0) {
+        http_response_code(400);
+        echo json_encode(["message" => "No user found with that E-Mail"]);
         exit;
     }
 
-    $results = mysqli_fetch_assoc($result_check);
-    $userId  = $results["id"];
+    $user = $result_check->fetch_assoc();
+    $userId = $user["id"];
 
-    /**
-     * 4️⃣ Kontrolli i bllokimit (7 tentativa / 30 min)
-     */
+    // 4️⃣ Check failed login attempts
     $attempts = failedAttempts($conn, $userId);
-
     if ($attempts >= 7) {
-        http_response_code(201);
+        http_response_code(403);
         echo json_encode([
-            "message" => "Login i bllokuar për 30 minuta për shkak të tentativave të shumta"
+            "message" => "Login blocked for 30 minutes due to too many attempts"
         ]);
         exit;
     }
 
-    /**
-     * 5️⃣ Kontrolli i password-it
-     */
-    if (!password_verify($password, $results["password"])) {
-
+    // 5️⃣ Verify password
+    if (!password_verify($password, $user["password"])) {
         logAction($conn, $userId, "login_failed", "Incorrect password");
-
-        http_response_code(201);
-        echo json_encode([
-            "message" => "Incorrect Password"
-        ]);
+        http_response_code(400);
+        echo json_encode(["message" => "Incorrect password"]);
         exit;
     }
 
-
-    /**
-     * 6️⃣ LOGIN SUKSES
-     * Reset tentativash + log sukses
-     */
+    // 6️⃣ Successful login
     resetFailedAttempts($conn, $userId);
     logAction($conn, $userId, "login_success");
 
-    /**
-     * 7️⃣ Session
-     */
-    session_start();
-    $_SESSION["id"] = $results["id"];
-    $_SESSION["email"] = $results["email"];
-    $_SESSION["role_id"] = $results["role_id"];
+    // 7️⃣ Set session
+    $_SESSION["id"] = $user["id"];
+    $_SESSION["email"] = $user["email"];
+    $_SESSION["role_id"] = $user["role_id"];
 
-    /**
-     * 8️⃣ Redirect sipas rolit
-     */
-    $location = "menu.php";
-    if ($results["role_id"] == 1) {
-        $location = "menu.php";
-    }
+    // 8️⃣ Determine redirect location
+    $location = "menu.php"; // default for all roles (can adjust if you have multiple roles)
 
     http_response_code(200);
     echo json_encode([
@@ -190,6 +159,7 @@ else if ($_POST["action"] == "login") {
     ]);
     exit;
 }
+
 
 else if ($_POST["action"] == "register") {
 

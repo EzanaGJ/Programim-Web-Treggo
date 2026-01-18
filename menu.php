@@ -153,33 +153,58 @@ require_once "includes/login/top_menu.php";
 <!--Maria-login-->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    let timeoutDuration = 90000; // 10 sekonda = 10000ms
-    let logoutTimer;
+    $(document).ready(function() {
 
-    function startLogoutTimer() {
-        // Fshij timer-in ekzistues
-        clearTimeout(logoutTimer);
+        /*** 1️⃣ Inactivity Logout Timer ***/
+        let timeoutDuration = 900000; // 15 minutes = 900000ms
+        let logoutTimer;
 
-        // Vendos timer-in e ri
-        logoutTimer = setTimeout(() => {
-            alert("You have been logged out due to inactivity.");
-            window.location.href = "login.php"; // ridrejto në login
-        }, timeoutDuration);
-    }
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php"; // redirect to login
+            }, timeoutDuration);
+        }
 
-    // Çdo herë që përdoruesi bën aktivitet, reseto timer-in
-    function resetLogoutTimer() {
+        function resetLogoutTimer() {
+            startLogoutTimer();
+        }
+
+        // Reset timer on user activity
+        $(document).on('mousemove keydown click scroll', resetLogoutTimer);
+
+        // Start the timer on page load
         startLogoutTimer();
-    }
 
-    // Aktivitetet që do ta resetojnë timer-in
-    document.addEventListener('mousemove', resetLogoutTimer);
-    document.addEventListener('keydown', resetLogoutTimer);
-    document.addEventListener('click', resetLogoutTimer);
-    document.addEventListener('scroll', resetLogoutTimer);
 
-    // Start timer kur faqja ngarkohet
-    startLogoutTimer();
+        /*** 2️⃣ Add to Cart AJAX ***/
+        $(".add-to-cart").on("click", function () {
+            let product_id = $(this).data("id");
+
+            $.ajax({
+                url: "ajax.php",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    action: "add_to_cart",
+                    product_id: product_id
+                },
+                success: function (res) {
+                    if (res.status === "success") {
+                        alert("Produkti u shtua në shportë ✅");
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    alert("AJAX error");
+                }
+            });
+        });
+
+    });
 </script>
 
 </body>
