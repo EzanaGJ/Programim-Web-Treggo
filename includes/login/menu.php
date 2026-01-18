@@ -1,9 +1,4 @@
-<?php
 
-if(isset($_SESSION['id'])) {
-    include "menu.php";
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
