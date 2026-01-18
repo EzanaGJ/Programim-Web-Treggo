@@ -1,12 +1,11 @@
 <?php
-global $conn;
 session_start();
+global $conn;
 require_once "../connect.php";
 
 header('Content-Type: application/json');
 
-/* Only admin allowed */
-if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] !== 1) {
+if (!isset($_SESSION['role_id']) || intval($_SESSION['role_id']) !== 1) {
     echo json_encode([
         "status" => 403,
         "message" => "Unauthorized access"

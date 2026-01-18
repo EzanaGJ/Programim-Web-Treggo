@@ -1,19 +1,11 @@
 <?php
+session_start();
 global $conn;
 
-/* DEMO ADMIN SESSION - FOR TESTING ONLY */
-if (!isset($_SESSION['role_id'])) {
-    $_SESSION['role_id'] = 1; // Treat as admin
-    $_SESSION['name'] = 'Demo';
-    $_SESSION['surname'] = 'Admin';
-    $_SESSION['email'] = 'admin@example.com';
+if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 1) {
+    header("Location: login.php");
+    exit;
 }
-
-if ($_SESSION['role_id'] !== 1) {
-    header("Location: profile.php");
-     exit;
-}
-
 require_once "includes/login/header.php";
 
 /* Fetch roles */
@@ -29,6 +21,9 @@ if (!$result) { die(mysqli_error($conn)); }
 <button class="btn btn-add mb-3" data-toggle="modal" data-target="#addRoleModal">
     + Add Role
 </button>
+<a href="users.php" class="btn btn-add mb-3">
+    ← Back to Users
+</a>
 
 <table class="table table-bordered role-table">
     <thead style="background:#d8f3dc;">

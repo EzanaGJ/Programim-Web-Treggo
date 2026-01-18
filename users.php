@@ -1,19 +1,19 @@
 <?php
+session_start();
 global $conn;
 require_once "connect.php";
 
 require_once "includes/login/header.php";
 
-session_start();
 if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
     header("Location: login.php");
     exit;
 }
 
-//if ($_SESSION['role_id'] !== 1) {
-//    header("Location: profile.php");
-//    exit;
-//}
+/*if ($_SESSION['role_id'] !== 1) {
+    header("Location: profile.php");
+    exit;
+}*/
 
 $query_users = "SELECT id, name, surname, email, role_id, email_verified, created_at FROM users";
 $result_users = mysqli_query($conn, $query_users);

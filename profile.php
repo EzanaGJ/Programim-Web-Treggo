@@ -89,10 +89,16 @@ if ($result_user_data && mysqli_num_rows($result_user_data) > 0) {
     exit();
 }
 ?>
-
+<div class="d-flex justify-content-end mb-3">
+    <a href="products.php" class="btn btn-primary" style="position: absolute; top: 15px; right: 15px;">
+        <i class="fas fa-home"></i> Back to Menu
+    </a>
+</div>
 <div class="container-fluid profile-container">
+
     <div class="profile-card shadow-lg">
         <div class="profile-header">
+
             <img src="uploads/<?php
             echo htmlspecialchars(
                     !empty($user['profile_pic'])

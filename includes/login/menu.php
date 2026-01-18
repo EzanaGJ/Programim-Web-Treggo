@@ -7,6 +7,7 @@
     <title>Treggo | Menu</title>
 
     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
     <link href="css/animate.css" rel="stylesheet">
@@ -39,7 +40,7 @@
 
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-bell"></i></a>
+                <a class="nav-link" href="orders.php"><i class="fa fa-shopping-bag"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="cart.php"><i class="fa fa-shopping-cart"></i></a>

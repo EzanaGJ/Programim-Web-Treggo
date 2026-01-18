@@ -1,262 +1,221 @@
 <?php
+global $conn;
+session_start();
+require_once "connect.php";
 require_once "includes/login/menu.php";
 
+if (!isset($_SESSION['id'])) {
+    header("Location: login.php");
+    exit;
+}
 
+$userId = $_SESSION['id'];
+
+$address = "";
+$stmt = $conn->prepare("SELECT address FROM users WHERE id = ?");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$stmt->bind_result($address);
+$stmt->fetch();
+$stmt->close();
+
+$total = 0;
+$products = [];
+
+$stmt = $conn->prepare("
+    SELECT p.id, p.name, p.amount, c.quantity
+    FROM cart c
+    JOIN products p ON p.id = c.product_id
+    WHERE c.user_id = ?
+");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $products[] = $row;
+    $total += $row['amount'] * $row['quantity'];
+}
+$stmt->close();
+
+$cartEmpty = ($total <= 0);
 ?>
 
+<script src="https://js.stripe.com/v3/"></script>
 
 <div id="wrapper">
 
+    <!-- Page Heading -->
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>Checkout</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="products.php">Menu</a></li>
+                <li class="breadcrumb-item"><a href="cart.php">Cart</a></li>
+                <li class="breadcrumb-item active"><strong>Checkout</strong></li>
+            </ol>
         </div>
-        <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
-                <h2>Treggo payments</h2>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="menu.php">Menu</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Payments</strong>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="cart.php">Cart</a>
-                    </li>
-                </ol>
-            </div>
-            <div class="col-lg-2">
-
-            </div>
-        </div>
-
-        <div class="wrapper wrapper-content animated fadeInRight">
-
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="payment-card">
-                        <i class="fa fa-cc-visa payment-icon-big text-success"></i>
-                        <h2>
-                            **** **** **** 1060
-                        </h2>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <small>
-                                    <strong>Expiry date:</strong> 10/16
-                                </small>
-                            </div>
-                            <div class="col-sm-6 text-right">
-                                <small>
-                                    <strong>Name:</strong> David Williams
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="payment-card">
-                        <i class="fa fa-cc-mastercard payment-icon-big text-warning"></i>
-                        <h2>
-                            **** **** **** 7002
-                        </h2>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <small>
-                                    <strong>Expiry date:</strong> 10/16
-                                </small>
-                            </div>
-                            <div class="col-sm-6 text-right">
-                                <small>
-                                    <strong>Name:</strong> Anna Smith
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="payment-card">
-                        <i class="fa fa-cc-discover payment-icon-big text-danger"></i>
-                        <h2>
-                            **** **** **** 3466
-                        </h2>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <small>
-                                    <strong>Expiry date:</strong> 10/16
-                                </small>
-                            </div>
-                            <div class="col-sm-6 text-right">
-                                <small>
-                                    <strong>Name:</strong> Morgan Stanch
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="row">
-
-                <div class="col-lg-12">
-
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            Payment method
-                        </div>
-                        <div class="ibox-content">
-
-                            <div class="panel-group payments-method" id="accordion">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <div class="float-right">
-                                            <i class="fa fa-cc-paypal text-success"></i>
-                                        </div>
-                                        <h5 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">PayPal</a>
-                                        </h5>
-                                    </div>
-                                    <div id="collapseOne" class="panel-collapse collapse">
-                                        <div class="panel-body">
-
-                                            <div class="row">
-                                                <div class="col-md-10">
-                                                    <h2>Summary</h2>
-                                                    <strong>Product:</strong>: Name of product <br/>
-                                                    <strong>Price:</strong>: <span class="text-navy">$452.90</span>
-
-                                                    <p class="m-t">
-                                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                                                        enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                                                        nisi ut aliquip ex ea commodo consequat.
-
-                                                    </p>
-
-                                                    <a class="btn btn-success" href="">
-                                                        <i class="fa fa-cc-paypal"> </i> Purchase via PayPal
-                                                    </a>
-
-                                                </div>
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <div class="float-right">
-                                            <i class="fa fa-cc-amex text-success"></i>
-                                            <i class="fa fa-cc-mastercard text-warning"></i>
-                                            <i class="fa fa-cc-discover text-danger"></i>
-                                        </div>
-                                        <h5 class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Credit Card</a>
-                                        </h5>
-                                    </div>
-                                    <div id="collapseTwo" class="panel-collapse collapse in">
-                                        <div class="panel-body">
-
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <h2>Summary</h2>
-                                                    <strong>Product:</strong>: Name of product <br/>
-                                                    <strong>Price:</strong>: <span class="text-navy">$452.90</span>
-
-                                                    <p class="m-t">
-                                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                                                        enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                                                        nisi ut aliquip ex ea commodo consequat.
-
-                                                    </p>
-                                                    <p>
-                                                        Duis aute irure dolor
-                                                        in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                                                        nulla pariatur. Excepteur sint occaecat cupidatat.
-                                                    </p>
-                                                </div>
-                                                <div class="col-md-8">
-
-                                                    <form role="form" id="payment-form">
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <div class="form-group">
-                                                                    <label>CARD NUMBER</label>
-                                                                    <div class="input-group">
-                                                                        <input type="text" class="form-control" name="Number" placeholder="Valid Card Number" required />
-                                                                        <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-7 col-md-7">
-                                                                <div class="form-group">
-                                                                    <label>EXPIRATION DATE</label>
-                                                                    <input type="text" class="form-control" name="Expiry" placeholder="MM / YY"  required/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-5 col-md-5 float-right">
-                                                                <div class="form-group">
-                                                                    <label>CV CODE</label>
-                                                                    <input type="text" class="form-control" name="CVC" placeholder="CVC"  required/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <div class="form-group">
-                                                                    <label>NAME OF CARD</label>
-                                                                    <input type="text" class="form-control" name="nameCard" placeholder="NAME AND SURNAME"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <button class="btn btn-primary" type="submit">Make a payment!</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-
-                                                </div>
-
-                                            </div>
-
-
-
-
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-        <div class="footer text-center">
-            <p class="m-t">
-                <small>© 2025 Treggo | Designed by <strong>EMM'S</strong></small>
-            </p>
-        </div>
-
-
     </div>
-        </div>
 
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+        <?php if ($cartEmpty): ?>
+            <div class="text-center p-5">
+                <h3>Your cart is empty</h3>
+                <a href="products.php" class="btn btn-primary mt-3">Go to Shop</a>
+            </div>
+        <?php else: ?>
+
+            <!-- TWO COLUMN CHECKOUT -->
+            <div class="row">
+
+                <!-- LEFT COLUMN -->
+                <div class="col-lg-8">
+
+                    <!-- SHIPPING ADDRESS -->
+                    <div class="card shadow-sm p-3 mb-4">
+                        <h5 class="mb-3">
+                            <span class="badge badge-primary mr-2">1</span>
+                            Shipping Address
+                        </h5>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea id="address" class="form-control" rows="3"><?= htmlspecialchars($address ?? '') ?></textarea>
+                            <small class="text-muted">
+                                Loaded from your profile. You can edit it for this order.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm p-3 mb-4">
+                        <h5 class="mb-4">
+                            <span class="badge badge-primary mr-2">2</span>
+                            Payment Method
+                        </h5>
+
+                        <!-- Payment Cards -->
+                        <div class="d-flex flex-wrap justify-content-between mb-4">
+                            <div class="payment-card card bg-light text-center p-3 border-primary" data-target="#stripe" style="cursor:pointer; flex:1; margin-right:10px;">
+                                <i class="fas fa-credit-card fa-lg mb-2 text-primary"></i>
+                                <h6>Credit Card</h6>
+                                <small class="text-muted">Secure Stripe payment</small>
+                            </div>
+
+                            <div class="payment-card card bg-light text-center p-3 border-secondary" data-target="#paypal" style="cursor:pointer; flex:1;">
+                                <i class="fab fa-paypal fa-lg mb-2 text-info"></i>
+                                <h6>PayPal</h6>
+                                <small class="text-muted">Coming soon</small>
+                            </div>
+                        </div>
+
+                        <!-- Stripe -->
+                        <div id="stripe" class="payment-pane">
+                            <form id="payment-form">
+                                <input type="hidden" id="amount" value="<?= number_format($total, 2, '.', '') ?>">
+                                <div class="form-group">
+                                    <label>Card Details</label>
+                                    <div id="card-element" class="form-control p-2"></div>
+                                </div>
+                                <div id="card-errors" class="text-danger mb-3"></div>
+
+                                <p class="text-muted small text-center">
+                                    By placing your order, you agree to our terms and conditions.
+                                </p>
+
+                                <button class="btn btn-success btn-lg btn-block">
+                                    Place Order & Pay €<?= number_format($total, 2) ?>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- PayPal -->
+                        <div id="paypal" class="payment-pane" style="display:none;">
+                            <div class="text-center p-4">
+                                <p>PayPal integration coming soon.</p>
+                                <button class="btn btn-info btn-lg" disabled>
+                                    <i class="fab fa-paypal"></i> Pay with PayPal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: ORDER SUMMARY -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm p-3">
+                        <h5 class="mb-3">Order Summary</h5>
+
+                        <?php foreach ($products as $p): ?>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><?= htmlspecialchars($p['name']) ?> × <?= $p['quantity'] ?></span>
+                                <strong>€<?= number_format($p['amount'] * $p['quantity'], 2) ?></strong>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <strong>Total</strong>
+                            <strong class="text-success">€<?= number_format($total, 2) ?></strong>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
+<?php require_once "includes/no_login/footer.php"; ?>
 
+<script>
+    const stripe = Stripe("pk_test_51SqvzNBphMflaAAwIGHwDNuP7XcKcDbQ2Ovohrso1iJ3p10H52m3UaEJR4xX3WBk3WUWGVM0bwIANK1ON4eTqbsZ00Q4akb2T0");
+    const elements = stripe.elements();
+    const card = elements.create("card", { hidePostalCode: true });
+    card.mount("#card-element");
 
-<?php
-require_once "includes/no_login/footer.php";
-?>
+    const form = document.getElementById("payment-form");
+    const errorDiv = document.getElementById("card-errors");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const amount = document.getElementById("amount").value;
+        const address = document.getElementById("address").value;
+
+        const response = await fetch("payment/payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "amount=" + amount + "&address=" + encodeURIComponent(address)
+        });
+
+        const data = await response.json();
+        if (data.status !== "success") {
+            errorDiv.textContent = data.message;
+            return;
+        }
+
+        const result = await stripe.confirmCardPayment(data.clientSecret, {
+            payment_method: { card: card }
+        });
+
+        if (result.error) {
+            errorDiv.textContent = result.error.message;
+        } else {
+            window.location.href = "payment_success.php";
+        }
+    });
+
+    // Payment card switch
+    document.querySelectorAll(".payment-card").forEach(card => {
+        card.addEventListener("click", () => {
+            document.querySelectorAll(".payment-card").forEach(c => c.classList.remove("border-primary"));
+            document.querySelectorAll(".payment-pane").forEach(p => p.style.display = "none");
+
+            card.classList.add("border-primary");
+            document.querySelector(card.dataset.target).style.display = "block";
+        });
+    });
+</script>

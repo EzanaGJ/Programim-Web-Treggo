@@ -15,7 +15,7 @@ require_once "functions.php";
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     <title>Treggo </title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="css/bootstrap.min.css" rel="stylesheet"><link href="css/style.css" rel="stylesheet">
     <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
     <!-- Toastr style -->
