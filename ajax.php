@@ -71,7 +71,7 @@ else if(isset($_POST['action']) && $_POST['action'] == 'login'){
     $_SESSION["role_id"] = $user['role_id'];
 
     // Redirect sipas role
-    $location = ($user['role_id'] == 1) ? "users.php" : "products.php";
+    $location = ($user['role_id'] == 1) ? "users.php" : "users.php";
 
     echo json_encode(["status"=>200,"message"=>"Logged in successfully","location"=>$location]);
     exit;
