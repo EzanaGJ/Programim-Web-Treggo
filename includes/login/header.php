@@ -7,12 +7,10 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_SESSION["id"]) && !isset($_SESSION["email"])) {
-  $_SESSION = array();
-   session_destroy();
-  header("location:login.php");
+if (!isset($_SESSION["id"])) {
+    header("location:login.php");
+    exit();
 }
-
 $urlPath = $_SERVER['REQUEST_URI'];
 
 // remove the file extension as well

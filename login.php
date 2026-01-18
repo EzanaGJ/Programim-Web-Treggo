@@ -1,5 +1,4 @@
 <?php
-
 global $conn;
 session_start();
 require_once "connect.php";
@@ -10,16 +9,18 @@ if(isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $query = "SELECT id, email, password, role_id FROM users WHERE email='$email'";
+    $query = "SELECT id,name, surname, email, password, role_id FROM users WHERE email='$email'";
     $result = mysqli_query($conn, $query);
 
     if(mysqli_num_rows($result) == 1){
         $user = mysqli_fetch_assoc($result);
         if(password_verify($password, $user['password'])){
-            $_SESSION['id'] = $user['id'];
-            $_SESSION['role_id'] = $user['role_id'];
+            $_SESSION['id'] = (int) $user['id'];
+            $_SESSION['role_id'] = (int) $user['role_id'];
+            $_SESSION['name'] = $user['name'];
+            $_SESSION['surname'] = $user['surname'];
 
-            if($user['role_id'] == 1){
+            if($_SESSION['role_id'] === 1){
                 header("Location: users.php");
             } else {
                 header("Location: products.php");
