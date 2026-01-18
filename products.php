@@ -4,6 +4,11 @@ session_start();
 require_once "connect.php";
 require_once "menu.php";
 
+if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 2) {
+    header("Location: login.php");
+    exit;
+}
+
 $category = $_GET['category'] ?? null;
 $subcategory = $_GET['subcategory'] ?? null;
 
@@ -101,4 +106,59 @@ while ($row = mysqli_fetch_assoc($result)) {
     </footer>
 </div>
 
+<!--Maria-login-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
 
+        /*** 1️⃣ Inactivity Logout Timer ***/
+        let timeoutDuration = 900000; // 15 minutes = 900000ms
+        let logoutTimer;
+
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php"; // redirect to login
+            }, timeoutDuration);
+        }
+
+        function resetLogoutTimer() {
+            startLogoutTimer();
+        }
+
+        // Reset timer on user activity
+        $(document).on('mousemove keydown click scroll', resetLogoutTimer);
+
+        // Start the timer on page load
+        startLogoutTimer();
+
+
+        /*** 2️⃣ Add to Cart AJAX ***/
+        $(".add-to-cart").on("click", function () {
+            let product_id = $(this).data("id");
+
+            $.ajax({
+                url: "ajax.php",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    action: "add_to_cart",
+                    product_id: product_id
+                },
+                success: function (res) {
+                    if (res.status === "success") {
+                        alert("Produkti u shtua në shportë ✅");
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    alert("AJAX error");
+                }
+            });
+        });
+
+    });
+</script>

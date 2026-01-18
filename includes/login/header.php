@@ -3,19 +3,6 @@ global $conn;
 require_once "connect.php";
 require_once "functions.php";
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION["id"])) {
-    header("location:login.php");
-    exit();
-}
-$urlPath = $_SERVER['REQUEST_URI'];
-
-// remove the file extension as well
-$filename = basename($urlPath);
-$filenameArray = explode(".", $filename);
 
 ?>
 

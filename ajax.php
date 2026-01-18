@@ -1,5 +1,6 @@
 <?php
 session_start();
+global $conn;
 require_once "connect.php";
 require_once "functions.php";
 
@@ -71,7 +72,7 @@ else if(isset($_POST['action']) && $_POST['action'] == 'login'){
     $_SESSION["role_id"] = $user['role_id'];
 
     // Redirect sipas role
-    $location = ($user['role_id'] == 1) ? "users.php" : "users.php";
+    $location = ($user['role_id'] == 1) ? "users.php" : "products.php";
 
     echo json_encode(["status"=>200,"message"=>"Logged in successfully","location"=>$location]);
     exit;
@@ -149,12 +150,15 @@ else if ($_POST["action"] === "login") {
     $_SESSION["email"] = $user["email"];
     $_SESSION["role_id"] = $user["role_id"];
 
-    // 8️⃣ Determine redirect location
-    $location = "menu.php"; // default for all roles (can adjust if you have multiple roles)
+    // 8️⃣ Determine redirect location (ONLY ADMIN & USER)
+    if ($user["role_id"] == 1) {
+        $location = "users.php";      // ADMIN
+    } elseif ($user["role_id"] == 2) {
+        $location = "products.php";   // USER
+    }
 
-    http_response_code(200);
     echo json_encode([
-        "message" => "User logged in successfully",
+        "status" => 200,
         "location" => $location
     ]);
     exit;
