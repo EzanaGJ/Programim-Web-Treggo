@@ -46,11 +46,16 @@ while ($row = mysqli_fetch_assoc($result)) {
     $products[] = $row;
 }
 ?>
-<div class="mb-3">
+<div class="mb-3 d-flex justify-content-between">
     <a href="products.php" class="btn btn-primary">
         <i class="fa fa-home"></i> Back to Main Menu
     </a>
+<!--add to cart-->
+    <a href="cart.php" class="btn btn-primary">
+        <i class="fa fa-shopping-cart"></i> Cart
+    </a>
 </div>
+
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row" id="products-container">
@@ -76,8 +81,13 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                             </div>
                             <div class="m-t text-right">
+<!--                                add to cart-->
                                 <button class="btn btn-xs btn-outline btn-danger"><i class="fa fa-heart"></i>
-                                <button class="btn btn-xs btn-outline btn-warning">Add to Cart</button>
+                                    <button class="btn btn-xs btn-outline btn-warning add-to-cart"
+                                            data-id="<?= $product['id'] ?>">
+                                        Add to Cart
+                                    </button>
+
                             </div>
                         </div>
                     </div>
@@ -90,3 +100,34 @@ while ($row = mysqli_fetch_assoc($result)) {
         © 2025 Treggo | Designed by <strong>EMM'S</strong>
     </footer>
 </div>
+
+<!--Maria add to cart-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(".add-to-cart").on("click", function () {
+
+        let product_id = $(this).data("id");
+
+        $.ajax({
+            url: "ajax.php",
+            type: "POST",
+            dataType: "json",
+            data: {
+                action: "add_to_cart",
+                product_id: product_id
+            },
+            success: function (res) {
+                if (res.status === "success") {
+                    alert("Produkti u shtua në shportë ✅");
+                } else {
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert("AJAX error");
+            }
+        });
+    });
+</script>

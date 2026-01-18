@@ -150,5 +150,38 @@ require_once "includes/login/top_menu.php";
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.js"></script>
 
+<!--Maria-login-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let timeoutDuration = 90000; // 10 sekonda = 10000ms
+    let logoutTimer;
+
+    function startLogoutTimer() {
+        // Fshij timer-in ekzistues
+        clearTimeout(logoutTimer);
+
+        // Vendos timer-in e ri
+        logoutTimer = setTimeout(() => {
+            alert("You have been logged out due to inactivity.");
+            window.location.href = "login.php"; // ridrejto në login
+        }, timeoutDuration);
+    }
+
+    // Çdo herë që përdoruesi bën aktivitet, reseto timer-in
+    function resetLogoutTimer() {
+        startLogoutTimer();
+    }
+
+    // Aktivitetet që do ta resetojnë timer-in
+    document.addEventListener('mousemove', resetLogoutTimer);
+    document.addEventListener('keydown', resetLogoutTimer);
+    document.addEventListener('click', resetLogoutTimer);
+    document.addEventListener('scroll', resetLogoutTimer);
+
+    // Start timer kur faqja ngarkohet
+    startLogoutTimer();
+</script>
+
 </body>
 </html>
+

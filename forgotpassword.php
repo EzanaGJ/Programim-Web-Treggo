@@ -1,70 +1,42 @@
 <?php
 session_start();
-require_once "includes/no_login/header.php"; // Header i faqes
+require_once "includes/login/resetpassword.php";
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treggo | Forgot Password</title>
 
-    <!-- Lidhjet me CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<div class="forgot-box animated fadeInDown">
+    <h3>Forgot Password</h3>
+    <p>Enter your email to generate a new password.</p>
 
-    <style>
-        body { background-color: #f3f3f4; }
-        .forgot-box {
-            background-color: #ffffff;
-            border: 2px solid darkseagreen;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            max-width: 400px;
-            margin: 80px auto 20px auto;
-        }
-        .forgot-box h3 { margin-bottom: 15px; }
-        .copyright { text-align: center; margin-top: 20px; color: #888888; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
-</head>
-
-<body class="gray-bg">
-
-<div class="forgot-box text-center animated fadeInDown">
-    <h3>Forgot password</h3>
-    <p>Enter your email address and we'll send you instructions to reset your password.</p>
-
-    <form class="m-t" id="forgotPasswordForm">
+    <form id="forgotPasswordForm" class="m-t">
         <div class="form-group">
             <input type="email" id="forgotEmailId" class="form-control" placeholder="Email address" required>
             <span id="forgot_email_messageId" class="text-danger"></span>
         </div>
-
-        <button type="button" class="btn btn-primary block full-width m-b" onclick="sendResetLink()">Send new password</button>
+        <button type="button" class="btn btn-primary block full-width m-b" onclick="sendResetLink()">Send New Password</button>
     </form>
 
-    <a href="login.php"><small>Back to login</small></a>
+    <div id="newPasswordContainer">
+        <label><strong>New Password</strong></label>
+        <input type="text" id="new_password" class="form-control" readonly>
+        <button id="backToLogin" class="btn btn-btn btn-primary block full-width m-t">Back to Login</button>
+    </div>
 </div>
 
 <div class="copyright">
     <p class="m-t"><small>©️ 2025 Treggo | Designed by <strong>EMM'S</strong></small></p>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<?php include "includes/no_login/footer.php"; ?>
+
+
+
 <script>
     toastr.options = {
-        "closeButton": true,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "timeOut": "5000"
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        timeOut: 10000
     };
 
     function sendResetLink() {
@@ -80,22 +52,18 @@ require_once "includes/no_login/header.php"; // Header i faqes
             $("#forgot_email_messageId").text("");
         }
 
-        const data = new FormData();
-        data.append("action", "forgot_password");
-        data.append("email", email);
-
         $.ajax({
-            type: "POST",
             url: "ajax.php",
-            data: data,
+            type: "POST",
+            data: { action: "forgot_password", email: email },
             dataType: "json",
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.status === 200) {
-                    toastr.success(response.message);
+            success: function(resp) {
+                if (resp.status === 200) {
+                    $("#new_password").val(resp.new_password);
+                    $("#newPasswordContainer").fadeIn();
+                    toastr.success(resp.message);
                 } else {
-                    toastr.error(response.message);
+                    toastr.error(resp.message);
                 }
             },
             error: function() {
@@ -103,11 +71,9 @@ require_once "includes/no_login/header.php"; // Header i faqes
             }
         });
     }
+
+    $("#backToLogin").click(function(){
+        window.location.href = "login.php";
+    });
 </script>
 
-</body>
-</html>
-
-<?php
-include "includes/no_login/footer.php";
-?>

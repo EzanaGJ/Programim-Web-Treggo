@@ -1,10 +1,85 @@
 <?php
-global $conn;
+session_start();
 require_once "connect.php";
 require_once "functions.php";
-error_reporting(0);
 
-if ($_POST["action"] == "login") {
+header('Content-Type: application/json');
+
+$action = $_POST['action'] ?? '';
+
+if(isset($_POST['action']) && $_POST['action'] == 'forgot_password'){
+    global $conn;
+    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
+
+    if(empty($email)){
+        echo json_encode(["status"=>201,"message"=>"Please enter your email"]);
+        exit;
+    }
+
+    $query = "SELECT id FROM users WHERE email='$email'";
+    $result = mysqli_query($conn, $query);
+
+    if(!$result || mysqli_num_rows($result) != 1){
+        echo json_encode(["status"=>201,"message"=>"No user found with that email"]);
+        exit;
+    }
+
+    $user = mysqli_fetch_assoc($result);
+
+    // Gjenero fjalëkalim të ri dhe ruaj si hash
+    $new_password = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),0,8);
+    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+    $update = "UPDATE users SET password='$hashed_password' WHERE id='".$user['id']."'";
+    if(mysqli_query($conn,$update)){
+        echo json_encode(["status"=>200,"message"=>"New password generated!","new_password"=>$new_password]);
+    } else {
+        echo json_encode(["status"=>201,"message"=>"Error updating password"]);
+    }
+    exit;
+}
+
+else if(isset($_POST['action']) && $_POST['action'] == 'login'){
+    global $conn;
+
+    $email = mysqli_real_escape_string($conn,$_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    if(empty($email) || empty($password)){
+        echo json_encode(["status"=>201,"message"=>"Email and Password are required"]);
+        exit;
+    }
+
+    $query = "SELECT id,email,role_id,password FROM users WHERE email='$email' LIMIT 1";
+    $result = mysqli_query($conn,$query);
+
+    if(!$result || mysqli_num_rows($result)==0){
+        echo json_encode(["status"=>201,"message"=>"No user found with that email"]);
+        exit;
+    }
+
+    $user = mysqli_fetch_assoc($result);
+
+    if(!password_verify($password,$user['password'])){
+        echo json_encode(["status"=>201,"message"=>"Incorrect Password"]);
+        exit;
+    }
+
+    // Session
+    $_SESSION["id"] = $user['id'];
+    $_SESSION["email"] = $user['email'];
+    $_SESSION["role_id"] = $user['role_id'];
+
+    // Redirect sipas role
+    $location = ($user['role_id'] == 1) ? "users.php" : "products.php";
+
+    echo json_encode(["status"=>200,"message"=>"Logged in successfully","location"=>$location]);
+    exit;
+}
+
+
+
+else if ($_POST["action"] == "login") {
 
     // 1. Merr të dhënat
     $email = mysqli_real_escape_string($conn, $_POST["email"]);
@@ -27,16 +102,13 @@ if ($_POST["action"] == "login") {
     }
 
     /**
-     * Kontrollo në DB
+     * 3️⃣ Kontrollo user-in në DB
      */
     $query_check = "
-        SELECT id, 
-               email,
-               role_id,
-               password
+        SELECT id, email, role_id, password
         FROM users
         WHERE email = '$email'
-        LIMIT 1;
+        LIMIT 1
     ";
 
     $result_check = mysqli_query($conn, $query_check);
@@ -58,26 +130,57 @@ if ($_POST["action"] == "login") {
     }
 
     $results = mysqli_fetch_assoc($result_check);
+    $userId  = $results["id"];
 
-    // Kontrolli i password-it
-    if (!password_verify($password, $results["password"])) {
+    /**
+     * 4️⃣ Kontrolli i bllokimit (7 tentativa / 30 min)
+     */
+    $attempts = failedAttempts($conn, $userId);
+
+    if ($attempts >= 7) {
         http_response_code(201);
-        echo json_encode(["message" => "Incorrect Password"]);
+        echo json_encode([
+            "message" => "Login i bllokuar për 30 minuta për shkak të tentativave të shumta"
+        ]);
         exit;
     }
 
     /**
-     * Session
+     * 5️⃣ Kontrolli i password-it
+     */
+    if (!password_verify($password, $results["password"])) {
+
+        logAction($conn, $userId, "login_failed", "Incorrect password");
+
+        http_response_code(201);
+        echo json_encode([
+            "message" => "Incorrect Password"
+        ]);
+        exit;
+    }
+
+
+    /**
+     * 6️⃣ LOGIN SUKSES
+     * Reset tentativash + log sukses
+     */
+    resetFailedAttempts($conn, $userId);
+    logAction($conn, $userId, "login_success");
+
+    /**
+     * 7️⃣ Session
      */
     session_start();
     $_SESSION["id"] = $results["id"];
     $_SESSION["email"] = $results["email"];
     $_SESSION["role_id"] = $results["role_id"];
 
-    // Redirect sipas role_id
-    $location = "menu.php"; // default user
+    /**
+     * 8️⃣ Redirect sipas rolit
+     */
+    $location = "menu.php";
     if ($results["role_id"] == 1) {
-        $location = "menu.php"; // admin
+        $location = "menu.php";
     }
 
     http_response_code(200);
@@ -188,3 +291,125 @@ else if ($_POST["action"] == "register") {
 
 
 }
+
+
+// Merr veprimin nga JS
+$action = $_POST['action'] ?? '';
+
+if (!isset($action)) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "No action specified"
+    ]);
+    exit;
+}
+
+/* ==================== ADD TO CART ==================== */
+if ($action === "add_to_cart") {
+
+    if (!isset($_SESSION['id'])) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Duhet të jesh i loguar"
+        ]);
+        exit;
+    }
+
+    if (!isset($_POST['product_id'])) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Product ID missing"
+        ]);
+        exit;
+    }
+
+    $user_id = (int) $_SESSION['id'];
+    $product_id = (int) $_POST['product_id'];
+
+    // Kontrollo nëse produkti ekziston në cart
+    $check = mysqli_prepare(
+        $conn,
+        "SELECT id, quantity FROM cart WHERE user_id = ? AND product_id = ?"
+    );
+    mysqli_stmt_bind_param($check, "ii", $user_id, $product_id);
+    mysqli_stmt_execute($check);
+    $result = mysqli_stmt_get_result($check);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        // Rrit quantity
+        $newQty = $row['quantity'] + 1;
+        $upd = mysqli_prepare(
+            $conn,
+            "UPDATE cart SET quantity = ? WHERE id = ?"
+        );
+        mysqli_stmt_bind_param($upd, "ii", $newQty, $row['id']);
+        mysqli_stmt_execute($upd);
+    } else {
+        // Shto produkt të ri
+        $ins = mysqli_prepare(
+            $conn,
+            "INSERT INTO cart (user_id, product_id, quantity)
+             VALUES (?, ?, 1)"
+        );
+        mysqli_stmt_bind_param($ins, "ii", $user_id, $product_id);
+        mysqli_stmt_execute($ins);
+    }
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Product added to cart"
+    ]);
+    exit;
+}
+
+/* ==================== UPDATE CART QUANTITY ==================== */
+else if ($action === "update_cart") {
+
+    if (!isset($_SESSION['id'], $_POST['cart_id'], $_POST['quantity'])) {
+        echo json_encode(['success' => false]);
+        exit;
+    }
+
+    $user_id = $_SESSION['id'];
+    $cart_id = intval($_POST['cart_id']);
+    $quantity = max(1, intval($_POST['quantity']));
+
+    $sql = "UPDATE cart SET quantity = ? WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iii", $quantity, $cart_id, $user_id);
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit;
+}
+
+/* ==================== REMOVE ITEM FROM CART ==================== */
+else if ($action === "remove_cart_item") {
+
+    if (!isset($_SESSION['id'], $_POST['cart_id'])) {
+        echo json_encode(['success' => false]);
+        exit;
+    }
+
+    $user_id = $_SESSION['id'];
+    $cart_id = intval($_POST['cart_id']);
+
+    $sql = "DELETE FROM cart WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $cart_id, $user_id);
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit;
+}
+
+/* ==================== DEFAULT ==================== */
+echo json_encode([
+    "status" => "error",
+    "message" => "Invalid action"
+]);
+exit;
