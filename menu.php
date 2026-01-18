@@ -135,7 +135,7 @@ require_once "includes/login/top_menu.php";
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Platform</a>
+                    <a class="nav-link" href="platform.php">Platform</a>
                 </li>
 
             </ul>
