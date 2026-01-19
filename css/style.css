@@ -984,7 +984,7 @@ h1 {
   font-size: 30px;
 }
 h2 {
-  font-size: 24px;z
+  font-size: 24px;
 }
 h3 {
   font-size: 16px;
@@ -5744,7 +5744,7 @@ body.fullscreen-ibox-mode {
 body.modal-open {
   padding-right: inherit !important;
 }
-_::-webkit-full-page-media,
+_:-webkit-full-page-media,
 _:future,
 :root body.modal-open .wrapper-content.animated {
   -webkit-animation: none;

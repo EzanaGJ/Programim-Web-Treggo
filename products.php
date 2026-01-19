@@ -51,48 +51,37 @@ while ($row = mysqli_fetch_assoc($result)) {
     $products[] = $row;
 }
 ?>
-<div class="mb-3 d-flex justify-content-between">
-    <a href="products.php" class="btn btn-primary">
-        <i class="fa fa-home"></i> Back to Main Menu
-    </a>
-<!--add to cart-->
-    <a href="cart.php" class="btn btn-primary">
-        <i class="fa fa-shopping-cart"></i> Cart
-    </a>
-</div>
-
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row" id="products-container">
         <?php foreach ($products as $product) { ?>
             <div class="col-md-3">
                 <div class="ibox">
-<!--                    changed product--box -->
-                    <a href="product_detail.php?id=<?= $product['id'] ?>" style="text-decoration:none; color:inherit;">
                     <div class="ibox-content product-box">
-                        <div class="product-imitation">
-                            <img src="<?= htmlspecialchars($product['img']) ?>"
-                                 alt="<?= htmlspecialchars($product['name']) ?>">
-                        </div>
+                        <a href="product_detail.php?id=<?= $product['id'] ?>">
+                            <div class="product-imitation">
+                                <img src="<?= htmlspecialchars($product['img']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" style="width:100%">
+                            </div>
+                        </a>
 
                         <div class="product-desc">
                             <span class="product-price">$<?= $product['amount'] ?></span>
                             <small class="text-muted">
-                                <?= $product['category'] ?> › <?= $product['subcategory'] ?>
+                                <?= htmlspecialchars($product['category']) ?> › <?= htmlspecialchars($product['subcategory']) ?>
                             </small>
-                            <a href="product_detail.php?id=<?= $product['id'] ?>" class="product-name"><?= $product['name'] ?></a>
+                            <a href="product_detail.php?id=<?= $product['id'] ?>" class="product-name"><?= htmlspecialchars($product['name']) ?></a>
+
                             <div class="small m-t-xs">
-                                <?= $product['description'] ?>
-
+                                <?= htmlspecialchars($product['description']) ?>
                             </div>
-                            <div class="m-t text-right">
-<!--                                add to cart-->
-                                <button class="btn btn-xs btn-outline btn-danger"><i class="fa fa-heart"></i>
-                                    <button class="btn btn-xs btn-outline btn-warning add-to-cart"
-                                            data-id="<?= $product['id'] ?>">
-                                        Add to Cart
-                                    </button>
 
+                            <div class="m-t text-right">
+                                <button class="btn btn-sm btn-outline btn-danger add-to-favorites" data-id="<?= $product['id'] ?>">
+                                    <i class="fa fa-heart"></i>
+                                </button>
+                                <button class="btn btn-xs btn-outline btn-warning add-to-cart" data-id="<?= $product['id'] ?>">
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -100,62 +89,89 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div>
         <?php } ?>
     </div>
-
-    <footer class="text-center">
-        © 2025 Treggo | Designed by <strong>EMM'S</strong>
-    </footer>
 </div>
 
-<!--Maria-login-->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="css/plugins/toastr/toastr.min.css" rel="stylesheet">
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/plugins/toastr/toastr.min.js"></script>
+
 <script>
     $(document).ready(function() {
 
-        /*** 1️⃣ Inactivity Logout Timer ***/
-        let timeoutDuration = 900000; // 15 minutes = 900000ms
+        // --- 1. Inactivity Logout (Untouched) ---
+        let timeoutDuration = 900000;
         let logoutTimer;
-
         function startLogoutTimer() {
             clearTimeout(logoutTimer);
             logoutTimer = setTimeout(() => {
                 alert("You have been logged out due to inactivity.");
-                window.location.href = "login.php"; // redirect to login
+                window.location.href = "login.php";
             }, timeoutDuration);
         }
-
-        function resetLogoutTimer() {
-            startLogoutTimer();
-        }
-
-        // Reset timer on user activity
-        $(document).on('mousemove keydown click scroll', resetLogoutTimer);
-
-        // Start the timer on page load
+        $(document).on('mousemove keydown click scroll', startLogoutTimer);
         startLogoutTimer();
 
+        // --- 2. Inspinia Toastr Configuration ---
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true, // The thin line at the bottom
+            "positionClass": "toast-top-right",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn", // Inspinia's smooth entry
+            "hideMethod": "fadeOut"
+        };
 
-        /*** 2️⃣ Add to Cart AJAX ***/
+        // --- 3. Add to Cart (Standard Alert - Untouched) ---
         $(".add-to-cart").on("click", function () {
             let product_id = $(this).data("id");
-
             $.ajax({
                 url: "ajax.php",
                 type: "POST",
                 dataType: "json",
-                data: {
-                    action: "add_to_cart",
-                    product_id: product_id
-                },
+                data: { action: "add_to_cart", product_id: product_id },
                 success: function (res) {
                     if (res.status === "success") {
                         alert("Produkti u shtua në shportë ✅");
                     } else {
                         alert(res.message);
                     }
+                }
+            });
+        });
+
+        // --- 4. Add to Favorites (Exact Inspinia Detail Logic) ---
+        $('.add-to-favorites').on('click', function() {
+            const productId = $(this).data('id');
+            const button = $(this);
+
+            $.ajax({
+                url: 'add_to_favorites.php',
+                method: 'POST',
+                data: { product_id: productId },
+                dataType: 'json', // Matches your product detail dataType
+                success: function(res) {
+                    if (res.status === 'success') {
+                        // Change button to Solid Red
+                        button.removeClass('btn-outline').addClass('btn-danger');
+                        toastr.success('Success', 'Product added to favorites!');
+                    } else if (res.status === 'removed') {
+                        // Change button back to Outline
+                        button.addClass('btn-outline').removeClass('btn-danger');
+                        toastr.info('Notice', 'Removed from favorites.');
+                    } else {
+                        toastr.error('Error', res.message || 'Something went wrong.');
+                    }
                 },
-                error: function (xhr) {
-                    console.error(xhr.responseText);
-                    alert("AJAX error");
+                error: function() {
+                    toastr.error('System Error', 'Could not reach the server.');
                 }
             });
         });

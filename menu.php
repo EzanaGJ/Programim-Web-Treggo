@@ -13,7 +13,7 @@ require_once "includes/login/top_menu.php";
 
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-heart"></i></a>
+                <a class="nav-link" href="favorites.php"><i class="fa fa-heart"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="cart.php"><i class="fa fa-shopping-cart"></i></a>
@@ -34,7 +34,11 @@ require_once "includes/login/top_menu.php";
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="collapse navbar-collapse justify-content-center">
             <ul class="navbar-nav navbar-nav-center">
-
+                <li class="nav-item">
+                    <a class="nav-link" href="products.php">
+                        <i class="fa fa-home"></i> Main Menu
+                    </a>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Women</a>
                     <div class="dropdown-menu">
@@ -149,6 +153,7 @@ require_once "includes/login/top_menu.php";
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.js"></script>
+
 
 
 </body>
