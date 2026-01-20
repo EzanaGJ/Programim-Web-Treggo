@@ -3,6 +3,7 @@ global $conn;
 session_start();
 require_once "connect.php";
 require_once "includes/login/menu.php";
+//require "includes/login/auth.php";
 
 if (!isset($_SESSION['id'])) {
     header("Location: login.php");
@@ -171,6 +172,23 @@ $cartEmpty = ($total <= 0);
 <?php require_once "includes/no_login/footer.php"; ?>
 
 <script>
+    $(document).ready(function() {
+
+        // --- 1. Inactivity Logout ---
+        let timeoutDuration = 900000; // 15 minuta
+        let logoutTimer;
+
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php";
+            }, timeoutDuration);
+        }
+
+        $(document).on('mousemove keydown click scroll', startLogoutTimer);
+        startLogoutTimer();
+
     const stripe = Stripe("pk_test_51SqvzNBphMflaAAwIGHwDNuP7XcKcDbQ2Ovohrso1iJ3p10H52m3UaEJR4xX3WBk3WUWGVM0bwIANK1ON4eTqbsZ00Q4akb2T0");
     const elements = stripe.elements();
     const card = elements.create("card", { hidePostalCode: true });
@@ -217,5 +235,7 @@ $cartEmpty = ($total <= 0);
             card.classList.add("border-primary");
             document.querySelector(card.dataset.target).style.display = "block";
         });
+    });
+
     });
 </script>

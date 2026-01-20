@@ -1,10 +1,8 @@
 <?php
 session_start();
-require_once "functions.php";
-require_once "includes/no_login/header.php";
+require_once "includes/login/header.php";
 ?>
 <body class="gray-bg">
-
 <div class="middle-box text-center loginscreen p-5 white-bg shadow-lg animated fadeInDown">
     <div>
         <h1 class="logo-name">Treggo</h1>
@@ -27,13 +25,15 @@ require_once "includes/no_login/header.php";
                 <label><input type="checkbox" id="rememberId" name="rememberId"> Remember me</label>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <button type="submit" id="loginButton" class="btn btn-primary btn-block">Login</button>
 
             <a href="forgotpassword.php" class="d-block mt-2"><small>Forgot password?</small></a>
 
             <p class="text-muted text-center mt-3"><small>Don't have an account?</small></p>
             <a class="btn btn-sm btn-white btn-block" href="register.php">Create an account</a>
         </form>
+
+        <p id="countdown" class="text-danger mt-2"></p>
 
         <p class="m-t mt-4">
             <small>© 2025 Treggo | Designed by <strong>EMM'S</strong></small>
@@ -42,69 +42,73 @@ require_once "includes/no_login/header.php";
 </div>
 <?php include "includes/no_login/footer.php"; ?>
 
-
-<!-- JS -->
 <script>
-    toastr.options = {
-        closeButton: true,
-        progressBar: true,
-        positionClass: "toast-top-right",
-        timeOut: 5000
-    };
+    $(document).ready(function(){
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: "toast-top-right",
+            timeOut: 5000
+        };
 
-    $("#loginForm").submit(function(e){
-        e.preventDefault();
+        function startCountdown(seconds){
+            const btn = $("#loginButton");
+            const countdown = $("#countdown");
 
-        var email = $("#email").val().trim();
-        var password = $("#password").val().trim();
-        var email_regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        var error = false;
+            btn.prop("disabled", true);
+            let remaining = seconds;
 
-        if(!email_regex.test(email)){
-            $("#email").addClass("border-danger");
-            $("#email_message").text("Invalid E-Mail format");
-            error = true;
-        } else {
-            $("#email").removeClass("border-danger");
-            $("#email_message").text("");
-        }
-
-        if(password === ""){
-            $("#password").addClass("border-danger");
-            $("#password_message").text("Password cannot be empty");
-            error = true;
-        } else {
-            $("#password").removeClass("border-danger");
-            $("#password_message").text("");
-        }
-
-        if(error) return;
-
-        $.ajax({
-            url: "ajax.php",
-            type: "POST",
-            dataType: "json",
-            data: {
-                action: "login",
-                email: email,
-                password: password
-            },
-            success: function(response){
-                if(response.status == 200){
-                    toastr.success(response.message);
-                    setTimeout(function(){
-                        window.location.href = response.location;
-                    }, 500);
-                } else {
-                    toastr.error(response.message);
+            const interval = setInterval(()=>{
+                remaining--;
+                let min = Math.floor(remaining/60);
+                let sec = remaining % 60;
+                countdown.text(`Blocked for: ${min}m ${sec}s`);
+                if(remaining<=0){
+                    clearInterval(interval);
+                    btn.prop("disabled", false);
+                    countdown.text('');
                 }
-            },
-            error: function(xhr, status, error){
-                toastr.error("AJAX error: " + error);
+            }, 1000);
+        }
+
+        $("#loginForm").submit(function(e){
+            e.preventDefault();
+            let email = $("#email").val().trim();
+            let password = $("#password").val().trim();
+            let remember = $("#rememberId").is(":checked");
+            let error = false;
+
+            if(!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)){
+                toastr.error("Email invalid");
+                error=true;
             }
+            if(password===""){ toastr.error("Password can not be emty!"); error=true; }
+            if(error) return;
+
+            $.ajax({
+                url: "ajax.php",
+                type: "POST",
+                dataType: "json",
+                data: {action:"login", email, password, rememberId: remember},
+                success:function(resp){
+                    if(resp.status==200){
+                        toastr.success(resp.message);
+                        setTimeout(()=>{ window.location.href = resp.location; }, 500);
+                    } else if(resp.status==403){
+                        toastr.error(resp.message);
+                        if(resp.remaining) startCountdown(resp.remaining);
+                    } else {
+                        toastr.error(resp.message);
+                    }
+                },
+                error:function(xhr,status,error){
+                    toastr.error("AJAX error: "+error);
+                }
+            });
         });
     });
 </script>
+
 
 <style>
     body, html {

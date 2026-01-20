@@ -1,10 +1,13 @@
 <?php
 global $conn;
 session_start();
+if (!isset($_SESSION['id'])) {
+    header("Location: login.php");
+    exit;
+}
 require_once "connect.php";
 require_once "menu.php";
 
-if (!isset($_SESSION['id'])) { header("Location: login.php"); exit; }
 
 $user_id = $_SESSION['id'];
 $query = "SELECT p.id, p.name, p.description, p.category, p.subcategory, p.amount, p.img 
@@ -66,10 +69,33 @@ $result = mysqli_stmt_get_result($stmt);
 
 <script>
     $(document).ready(function () {
-        toastr.options = { "progressBar": true, "positionClass": "toast-top-right", "timeOut": "3000" };
 
+        /* ===== Inactivity Logout ===== */
+        let timeoutDuration = 900000;
+        let logoutTimer;
+
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php";
+            }, timeoutDuration);
+        }
+
+        $(document).on('mousemove keydown click scroll', startLogoutTimer);
+        startLogoutTimer();
+
+        /* ===== Toastr ===== */
+        toastr.options = {
+            progressBar: true,
+            positionClass: "toast-top-right",
+            timeOut: "3000"
+        };
+
+        /* ===== REMOVE FROM FAVORITES ===== */
         $(document).on("click", ".removeFavoriteBtn", function (e) {
             e.preventDefault();
+
             const btn = $(this);
             const productId = btn.data("id");
 
@@ -80,21 +106,54 @@ $result = mysqli_stmt_get_result($stmt);
                 dataType: "json",
                 success: function (res) {
                     if (res.status === "success") {
-                        btn.closest(".product-item").fadeOut(300, function() {
+                        btn.closest(".product-item").fadeOut(300, function () {
                             $(this).remove();
-                            if ($(".product-item").length === 0) { location.reload(); }
+                            if ($(".product-item").length === 0) location.reload();
                         });
-                        toastr.success('Item removed');
+                        toastr.success("Item removed from favorites");
                     } else {
                         toastr.error(res.message);
                     }
                 },
-                error: function() {
-                    toastr.error('Error: Check if remove_from_favorites.php exists');
+                error: function () {
+                    toastr.error("Server error");
                 }
             });
         });
+
+        /* ===== ADD TO CART  ===== */
+        $(document).on("click", ".addToCartBtn", function (e) {
+            e.preventDefault();
+
+            const btn = $(this);
+            const productId = btn.data("id");
+
+            $.ajax({
+                type: "POST",
+                url: "add_to_cart.php",
+                data: { product_id: productId },
+                dataType: "json",
+                success: function (res) {
+                    if (res.status === "success") {
+                        btn.addClass("btn-success").removeClass("btn-cart");
+                        toastr.success("Product added to cart 🛒");
+                    }
+                    else if (res.status === "removed") {
+                        btn.removeClass("btn-success").addClass("btn-cart");
+                        toastr.info("Product removed from cart");
+                    }
+                    else {
+                        toastr.error(res.message || "Error");
+                    }
+                },
+                error: function () {
+                    toastr.error("Could not add to cart");
+                }
+            });
+        });
+
     });
 </script>
+
 </body>
 </html>

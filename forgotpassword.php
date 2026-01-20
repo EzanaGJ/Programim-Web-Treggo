@@ -1,25 +1,74 @@
 <?php
-session_start();
-require_once "includes/login/resetpassword.php";
-?>
+global $conn;
+require 'connect.php';
+require 'resetPswMail.php';
+require_once "includes/login/forgotpassword.php";
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $email = trim($_POST['email']);
+
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email=?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+        $user = $result->fetch_assoc();
+
+        $token = bin2hex(random_bytes(16));
+        $code = rand(100000, 999999);
+        $expires = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+
+        // ruaj token + code + expiry
+        $update = $conn->prepare("
+            UPDATE users SET
+                reset_token=?,
+                reset_code=?,
+                reset_expires=?
+            WHERE id=?
+        ");
+        $update->bind_param("sssi", $token, $code, $expires, $user['id']);
+        $update->execute();
+
+        // dërgo email
+        $data = [
+                'type' => 'forgot_password',
+                'user_email' => $email,
+                'code' => $code,
+                'token' => $token
+        ];
+
+        if(sendEmail($data)){
+            $msg = "Reset code sent to your email!";
+        } else {
+            $msg = "Failed to send email.";
+        }
+
+    } else {
+        $msg = "Email not found!";
+    }
+}
+?>
 
 <div class="forgot-box animated fadeInDown">
     <h3>Forgot Password</h3>
-    <p>Enter your email to generate a new password.</p>
+    <p>Enter your email to generate a reset code.</p>
 
-    <form id="forgotPasswordForm" class="m-t">
+    <form method="POST" id="forgotPasswordForm">
         <div class="form-group">
-            <input type="email" id="forgotEmailId" class="form-control" placeholder="Email address" required>
-            <span id="forgot_email_messageId" class="text-danger"></span>
+            <input type="email" name="email" class="form-control" placeholder="Email address" required>
         </div>
-        <button type="button" class="btn btn-primary block full-width m-b" onclick="sendResetLink()">Send New Password</button>
+        <button type="submit" class="btn btn-primary block full-width m-b">Send Reset Code</button>
     </form>
+
+    <!-- PHP message displayed in smaller font -->
+    <?php if(isset($msg)) echo "<p class='small-msg'>$msg</p>"; ?>
 
     <div id="newPasswordContainer">
         <label><strong>New Password</strong></label>
         <input type="text" id="new_password" class="form-control" readonly>
-        <button id="backToLogin" class="btn btn-btn btn-primary block full-width m-t">Back to Login</button>
+        <a href="login.php" class="btn btn-secondary block full-width mt-3">Back to Login</a>
     </div>
 </div>
 
@@ -27,53 +76,6 @@ require_once "includes/login/resetpassword.php";
     <p class="m-t"><small>©️ 2025 Treggo | Designed by <strong>EMM'S</strong></small></p>
 </div>
 
-<?php include "includes/no_login/footer.php"; ?>
-
-
-
-<script>
-    toastr.options = {
-        closeButton: true,
-        progressBar: true,
-        positionClass: "toast-top-right",
-        timeOut: 10000
-    };
-
-    function sendResetLink() {
-        const email = $("#forgotEmailId").val().trim();
-        const email_regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-        if (!email_regex.test(email)) {
-            $("#forgotEmailId").addClass("border-danger");
-            $("#forgot_email_messageId").text("Please enter a valid email");
-            return;
-        } else {
-            $("#forgotEmailId").removeClass("border-danger");
-            $("#forgot_email_messageId").text("");
-        }
-
-        $.ajax({
-            url: "ajax.php",
-            type: "POST",
-            data: { action: "forgot_password", email: email },
-            dataType: "json",
-            success: function(resp) {
-                if (resp.status === 200) {
-                    $("#new_password").val(resp.new_password);
-                    $("#newPasswordContainer").fadeIn();
-                    toastr.success(resp.message);
-                } else {
-                    toastr.error(resp.message);
-                }
-            },
-            error: function() {
-                toastr.error("There was an error processing your request.");
-            }
-        });
-    }
-
-    $("#backToLogin").click(function(){
-        window.location.href = "login.php";
-    });
-</script>
-
+<?php
+require_once "includes/login/footer.php";
+?>

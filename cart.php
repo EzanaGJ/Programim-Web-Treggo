@@ -4,10 +4,15 @@ session_start();
 require_once "connect.php";
 require_once "menu.php";
 
-if(!isset($_SESSION['id'])){
+if (!isset($_SESSION['id'])) {
     header("Location: login.php");
     exit;
 }
+
+//if(!isset($_SESSION['id'])){
+//    header("Location: login.php");
+//    exit;
+//}
 
 $user_id = $_SESSION['id'];
 
@@ -124,7 +129,22 @@ while($row = $result->fetch_assoc()){
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function() {
+
+        // --- 1. Inactivity Logout ---
+        let timeoutDuration = 900000; // 15 minuta
+        let logoutTimer;
+
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php";
+            }, timeoutDuration);
+        }
+
+        $(document).on('mousemove keydown click scroll', startLogoutTimer);
+        startLogoutTimer();
 
         // ==================== UPDATE CART QUANTITY ====================
         $(".quantity-input").on("input change", function(){
