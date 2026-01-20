@@ -1,168 +1,118 @@
 <?php
-session_start();
 global $conn;
+session_start();
 require_once "connect.php";
 require_once "functions.php";
-
-header('Content-Type: application/json');
-
-$action = $_POST['action'] ?? '';
-
-if(isset($_POST['action']) && $_POST['action'] == 'forgot_password'){
-    global $conn;
-    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
-
-    if(empty($email)){
-        echo json_encode(["status"=>201,"message"=>"Please enter your email"]);
-        exit;
-    }
-
-    $query = "SELECT id FROM users WHERE email='$email'";
-    $result = mysqli_query($conn, $query);
-
-    if(!$result || mysqli_num_rows($result) != 1){
-        echo json_encode(["status"=>201,"message"=>"No user found with that email"]);
-        exit;
-    }
-
-    $user = mysqli_fetch_assoc($result);
-
-    // Gjenero fjalëkalim të ri dhe ruaj si hash
-    $new_password = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),0,8);
-    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-
-    $update = "UPDATE users SET password='$hashed_password' WHERE id='".$user['id']."'";
-    if(mysqli_query($conn,$update)){
-        echo json_encode(["status"=>200,"message"=>"New password generated!","new_password"=>$new_password]);
-    } else {
-        echo json_encode(["status"=>201,"message"=>"Error updating password"]);
-    }
-    exit;
+// Funksion per log aktivitet
+function logAction($conn,$userId,$action){
+    $stmt = $conn->prepare("INSERT INTO auth_logs (user_id, action, created_at) VALUES (?, ?, NOW())");
+    $stmt->bind_param("is",$userId,$action);
+    $stmt->execute();
 }
 
-else if(isset($_POST['action']) && $_POST['action'] == 'login'){
-    global $conn;
+// Tentativat e dështuara në 30 min
+function failedAttempts($conn,$userId){
+    $stmt = $conn->prepare("SELECT COUNT(*) as attempts FROM login_attempts WHERE user_id=? AND success=0 AND attempt_time > (NOW() - INTERVAL 30 MINUTE)");
+    $stmt->bind_param("i",$userId);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+    return $res['attempts'] ?? 0;
+}
 
-    $email = mysqli_real_escape_string($conn,$_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+// Reset tentativat
+function resetFailedAttempts($conn,$userId){
+    $stmt = $conn->prepare("DELETE FROM login_attempts WHERE user_id=?");
+    $stmt->bind_param("i",$userId);
+    $stmt->execute();
+}
 
-    if(empty($email) || empty($password)){
-        echo json_encode(["status"=>201,"message"=>"Email and Password are required"]);
+if(isset($_POST['action']) && $_POST['action']=="login"){
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $remember = isset($_POST['rememberId']);
+
+    if(!$email || !$password){
+        echo json_encode(["status"=>201,"message"=>"Email dhe Password jane te nevojshme"]);
         exit;
     }
 
-    $query = "SELECT id,email,role_id,password FROM users WHERE email='$email' LIMIT 1";
-    $result = mysqli_query($conn,$query);
+    // Merr user nga DB
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? LIMIT 1");
+    $stmt->bind_param("s",$email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if(!$result || $result->num_rows==0){
+        echo json_encode(["status"=>201,"message"=>"Nuk u gjet user me kete email"]);
+        exit;
+    }
+    $user = $result->fetch_assoc();
+    $userId = $user['id'];
 
-    if(!$result || mysqli_num_rows($result)==0){
-        echo json_encode(["status"=>201,"message"=>"No user found with that email"]);
+    // Kontrollo nese user eshte i bllokuar
+    if($user['login_block_until'] && strtotime($user['login_block_until'])>time()){
+        $remaining = strtotime($user['login_block_until'])-time();
+        echo json_encode(["status"=>403,"message"=>"Your account has been temporarily locked due to multiple failed login attempts. Please try again later.","remaining"=>$remaining]);
         exit;
     }
 
-    $user = mysqli_fetch_assoc($result);
-
+    // Kontrollo password
     if(!password_verify($password,$user['password'])){
-        echo json_encode(["status"=>201,"message"=>"Incorrect Password"]);
+        // Shto tentativen e deshtuar
+        $stmt = $conn->prepare("INSERT INTO login_attempts (user_id, attempt_time, success) VALUES (?, NOW(), 0)");
+        $stmt->bind_param("i",$userId);
+        $stmt->execute();
+
+        $attempts = failedAttempts($conn,$userId);
+        if($attempts>=7){
+            $blockUntil = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+            $stmt2 = $conn->prepare("UPDATE users SET login_block_until=? WHERE id=?");
+            $stmt2->bind_param("si",$blockUntil,$userId);
+            $stmt2->execute();
+
+            logAction($conn,$userId,"account_locked");
+            echo json_encode(["status"=>403,"message"=>"Login blocked for 30 minutes","remaining"=>30*60]);
+        } else {
+            logAction($conn,$userId,"login_failed");
+            echo json_encode(["status"=>201,"message"=>"Password gabim"]);
+        }
         exit;
     }
+
+    // Login suksess – reset tentativat
+    resetFailedAttempts($conn,$userId);
+    $stmt = $conn->prepare("UPDATE users SET login_block_until=NULL WHERE id=?");
+    $stmt->bind_param("i",$userId);
+    $stmt->execute();
+
+    logAction($conn,$userId,"login_success");
 
     // Session
-    $_SESSION["id"] = $user['id'];
+    $_SESSION["id"] = $userId;
     $_SESSION["email"] = $user['email'];
     $_SESSION["role_id"] = $user['role_id'];
+    $_SESSION["last_activity"] = time();
+    $_SESSION['name'] = $user['name'];
+    $_SESSION['surname'] = $user['surname'];
 
-    // Redirect sipas role
-    $location = ($user['role_id'] == 1) ? "users.php" : "products.php";
+
+
+    // Remember me
+    if($remember){
+        $token = bin2hex(random_bytes(32));
+        $expire = date('Y-m-d H:i:s', time()+604800); // 7 ditë
+        setcookie("remember_me",$token,time()+604800,"/");
+        $stmt2 = $conn->prepare("UPDATE users SET remember_token=?, remember_expire=? WHERE id=?");
+        $stmt2->bind_param("ssi",$token,$expire,$userId);
+        $stmt2->execute();
+    }
+
+    // Ridrejto sipas role
+    $location = ($user['role_id']==1) ? "users.php" : "products.php";
 
     echo json_encode(["status"=>200,"message"=>"Logged in successfully","location"=>$location]);
     exit;
 }
 
-
-else if ($_POST["action"] === "login") {
-
-    // 1️⃣ Get data
-    $email = trim($_POST["email"] ?? '');
-    $password = trim($_POST["password"] ?? '');
-    $email_regex = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
-
-    // 2️⃣ Validate input
-    if (!preg_match($email_regex, $email)) {
-        http_response_code(400);
-        echo json_encode(["message" => "E-Mail format is not allowed"]);
-        exit;
-    }
-
-    if (empty($password)) {
-        http_response_code(400);
-        echo json_encode(["message" => "Password cannot be empty"]);
-        exit;
-    }
-
-    // 3️⃣ Check user in DB using prepared statement
-    $stmt = $conn->prepare("SELECT id, email, role_id, password FROM users WHERE email = ? LIMIT 1");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result_check = $stmt->get_result();
-
-    if (!$result_check) {
-        http_response_code(500);
-        echo json_encode([
-            "message" => "Database error",
-            "error" => $conn->error
-        ]);
-        exit;
-    }
-
-    if ($result_check->num_rows === 0) {
-        http_response_code(400);
-        echo json_encode(["message" => "No user found with that E-Mail"]);
-        exit;
-    }
-
-    $user = $result_check->fetch_assoc();
-    $userId = $user["id"];
-
-    // 4️⃣ Check failed login attempts
-    $attempts = failedAttempts($conn, $userId);
-    if ($attempts >= 7) {
-        http_response_code(403);
-        echo json_encode([
-            "message" => "Login blocked for 30 minutes due to too many attempts"
-        ]);
-        exit;
-    }
-
-    // 5️⃣ Verify password
-    if (!password_verify($password, $user["password"])) {
-        logAction($conn, $userId, "login_failed", "Incorrect password");
-        http_response_code(400);
-        echo json_encode(["message" => "Incorrect password"]);
-        exit;
-    }
-
-    // 6️⃣ Successful login
-    resetFailedAttempts($conn, $userId);
-    logAction($conn, $userId, "login_success");
-
-    // 7️⃣ Set session
-    $_SESSION["id"] = $user["id"];
-    $_SESSION["email"] = $user["email"];
-    $_SESSION["role_id"] = $user["role_id"];
-
-    // 8️⃣ Determine redirect location (ONLY ADMIN & USER)
-    if ($user["role_id"] == 1) {
-        $location = "users.php";      // ADMIN
-    } elseif ($user["role_id"] == 2) {
-        $location = "products.php";   // USER
-    }
-
-    echo json_encode([
-        "status" => 200,
-        "location" => $location
-    ]);
-    exit;
-}
 
 
 else if ($_POST["action"] == "register") {
@@ -274,64 +224,6 @@ if (!isset($action)) {
     echo json_encode([
         "status" => "error",
         "message" => "No action specified"
-    ]);
-    exit;
-}
-
-/* ==================== ADD TO CART ==================== */
-if ($action === "add_to_cart") {
-
-    if (!isset($_SESSION['id'])) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Duhet të jesh i loguar"
-        ]);
-        exit;
-    }
-
-    if (!isset($_POST['product_id'])) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Product ID missing"
-        ]);
-        exit;
-    }
-
-    $user_id = (int) $_SESSION['id'];
-    $product_id = (int) $_POST['product_id'];
-
-    // Kontrollo nëse produkti ekziston në cart
-    $check = mysqli_prepare(
-        $conn,
-        "SELECT id, quantity FROM cart WHERE user_id = ? AND product_id = ?"
-    );
-    mysqli_stmt_bind_param($check, "ii", $user_id, $product_id);
-    mysqli_stmt_execute($check);
-    $result = mysqli_stmt_get_result($check);
-
-    if ($row = mysqli_fetch_assoc($result)) {
-        // Rrit quantity
-        $newQty = $row['quantity'] + 1;
-        $upd = mysqli_prepare(
-            $conn,
-            "UPDATE cart SET quantity = ? WHERE id = ?"
-        );
-        mysqli_stmt_bind_param($upd, "ii", $newQty, $row['id']);
-        mysqli_stmt_execute($upd);
-    } else {
-        // Shto produkt të ri
-        $ins = mysqli_prepare(
-            $conn,
-            "INSERT INTO cart (user_id, product_id, quantity)
-             VALUES (?, ?, 1)"
-        );
-        mysqli_stmt_bind_param($ins, "ii", $user_id, $product_id);
-        mysqli_stmt_execute($ins);
-    }
-
-    echo json_encode([
-        "status" => "success",
-        "message" => "Product added to cart"
     ]);
     exit;
 }

@@ -2,18 +2,18 @@
 session_start();
 global $conn;
 require_once "connect.php";
-
 require_once "includes/login/header.php";
+require "includes/login/auth.php";
 
-if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
-    header("Location: login.php");
-    exit;
-}
+//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
+//    header("Location: login.php");
+//    exit;
+//}
 
-/*if ($_SESSION['role_id'] !== 1) {
+if ($_SESSION['role_id'] !== 1) {
     header("Location: profile.php");
     exit;
-}*/
+}
 
 $query_users = "SELECT id, name, surname, email, role_id, email_verified, created_at FROM users";
 $result_users = mysqli_query($conn, $query_users);
@@ -45,12 +45,17 @@ function getRoleName($role_id) {
         <h2>Treggo Users</h2>
         <div class="d-flex gap-2">
             <a href="roles.php" class="btn btn-add-user mr-2">
-                <i class="fa fa-user-shield"></i> Roles
+                <i class="fa fa-user"></i> Roles
             </a>
 
             <button type="button" class="btn btn-add-user" data-toggle="modal" data-target="#addUserModal">
                 <i class="fa fa-plus"></i> Add User
             </button>
+
+            <a href="logout.php" class="btn btn-add-user mr-2">
+                <i class="fa fa-user"></i> Log out
+            </a>
+
         </div>
     </div>
 

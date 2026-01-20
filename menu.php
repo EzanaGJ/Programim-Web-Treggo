@@ -77,6 +77,7 @@ require_once "includes/login/top_menu.php";
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Home</a>
                     <div class="dropdown-menu">
+                        <a class="dropdown-item" href="products.php?category=Home">All</a>
                         <a class="dropdown-item" href="products.php?category=Home&subcategory=Kitchen%20tools">Kitchen tools</a>
                         <a class="dropdown-item" href="products.php?category=Home&subcategory=Tableware">Tableware</a>
                         <a class="dropdown-item" href="products.php?category=Home&subcategory=Household%20care">Household care</a>
@@ -92,6 +93,7 @@ require_once "includes/login/top_menu.php";
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Electronics</a>
                     <div class="dropdown-menu">
+                        <a class="dropdown-item" href="products.php?category=Electronics">All</a>
                         <a class="dropdown-item" href="products.php?category=Electronics&subcategory=Computers%20%26%20Accessories">Computers & Accessories</a>
                         <a class="dropdown-item" href="products.php?category=Electronics&subcategory=Mobile%20Phones%20%26%20Communication">Mobile Phones & Communication</a>
                         <a class="dropdown-item" href="products.php?category=Electronics&subcategory=Audio%20%26%20Headphones">Audio & Headphones</a>
@@ -106,6 +108,7 @@ require_once "includes/login/top_menu.php";
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Entertainment</a>
                     <div class="dropdown-menu">
+                        <a class="dropdown-item" href="products.php?category=Entertainment">All</a>
                         <a class="dropdown-item" href="products.php?category=Entertainment&subcategory=Books">Books</a>
                         <a class="dropdown-item" href="products.php?category=Entertainment&subcategory=Magazines">Magazines</a>
                         <a class="dropdown-item" href="products.php?category=Entertainment&subcategory=Music">Music</a>
@@ -116,6 +119,7 @@ require_once "includes/login/top_menu.php";
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Hobbies & Collectables</a>
                     <div class="dropdown-menu">
+                        <a class="dropdown-item" href="products.php?category=Hobbies%20%26%20Collectables">All</a>
                         <a class="dropdown-item" href="products.php?category=Hobbies%20%26%20Collectables&subcategory=Cards">Cards</a>
                         <a class="dropdown-item" href="products.php?category=Hobbies%20%26%20Collectables&subcategory=Board%20Games">Board Games</a>
                         <a class="dropdown-item" href="products.php?category=Hobbies%20%26%20Collectables&subcategory=Puzzles">Puzzles</a>
@@ -129,6 +133,7 @@ require_once "includes/login/top_menu.php";
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Sports</a>
                     <div class="dropdown-menu">
+                        <a class="dropdown-item" href="products.php?category=Sports">All</a>
                         <a class="dropdown-item" href="products.php?category=Sports&subcategory=Cycling">Cycling</a>
                         <a class="dropdown-item" href="products.php?category=Sports&subcategory=Fitness%20%26%20Yoga">Fitness & Yoga</a>
                         <a class="dropdown-item" href="products.php?category=Sports&subcategory=Water%20Sports">Water Sports</a>

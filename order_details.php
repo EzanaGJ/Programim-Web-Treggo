@@ -56,7 +56,9 @@ $address = $stmt_addr->get_result()->fetch_assoc();
         .order-item:last-child { border-bottom: none; }
         .product-img { width: 70px; }
     </style>
+
 </head>
+
 <body>
 
 <div class="container mt-5">
@@ -109,6 +111,7 @@ $address = $stmt_addr->get_result()->fetch_assoc();
         <i class="fas fa-arrow-left"></i> Back to Orders
     </a>
 </div>
+
 
 </body>
 </html>

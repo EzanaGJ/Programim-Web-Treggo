@@ -1,16 +1,15 @@
 <?php
 global $conn;
+
 session_start();
+//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
+//    header("Location: login.php");
+//    exit;
+//}
 require_once "connect.php";
 
-if (!isset($_SESSION['id'])) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        echo json_encode(['status'=>'error','message'=>'Not logged in']);
-        exit;
-    }
-    header("Location: login.php");
-    exit();
-}
+//require "includes/login/auth.php";
+
 
 $user_id = (int) $_SESSION['id'];
 
@@ -236,6 +235,7 @@ require_once "includes/login/footer.php";
         document.getElementById('photoForm').submit();
     });
 </script>
+
 
 <script>
     $('#saveBtn').on('click', function () {

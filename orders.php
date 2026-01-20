@@ -3,6 +3,7 @@ global $conn;
 session_start();
 require_once "connect.php";
 require_once "includes/login/menu.php";
+//require "includes/login/auth.php";
 
 $user_id = $_SESSION['id'] ?? null;
 if(!$user_id){
@@ -51,3 +52,4 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
 </body>
 </html>
+

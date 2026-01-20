@@ -1,6 +1,10 @@
 <?php
 global $conn;
 session_start();
+//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
+//    header("Location: login.php");
+//    exit;
+//}
 require_once "connect.php";
 require_once "menu.php";
 
@@ -110,7 +114,12 @@ $product = mysqli_fetch_assoc($result);
                     <hr>
 
                     <div class="btn-group">
-                        <button class="btn btn-primary btn-sm"><i class="fa fa-cart-plus"></i> Add to cart</button>
+                        <button
+                                type="button"
+                                class="btn btn-primary btn-sm add-to-cart-btn"
+                                data-id="<?= $product['id'] ?>">
+                            <i class="fa fa-cart-plus"></i> Add to cart
+                        </button>
                         <button class="btn btn-sm btn-outline btn-danger add-to-favorites" data-id="<?= $product['id'] ?>">
                             <i class="fa fa-heart"></i>
                         </button>
@@ -124,34 +133,94 @@ $product = mysqli_fetch_assoc($result);
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
 <script>
     $(document).ready(function() {
-        // Size selection logic
-        $('.selectable-size').on('click', function() {
+
+        // --- 1. Inactivity Logout (Untouched) ---
+        let timeoutDuration = 900000;
+        let logoutTimer;
+        function startLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                alert("You have been logged out due to inactivity.");
+                window.location.href = "login.php";
+            }, timeoutDuration);
+        }
+        $(document).on('mousemove keydown click scroll', startLogoutTimer);
+        startLogoutTimer();
+
+        $(document).on('click', '.selectable-size', function () {
             $('.selectable-size').removeClass('active');
             $(this).addClass('active');
         });
 
-        // Favorites logic
-        $('.add-to-favorites').on('click', function() {
+        $(document).on('click', '.add-to-favorites', function () {
             const productId = $(this).data('id');
             const button = $(this);
+
             $.ajax({
                 url: 'add_to_favorites.php',
                 method: 'POST',
-                data: { product_id: productId },
                 dataType: 'json',
-                success: function(res) {
+                data: { product_id: productId },
+                success: function (res) {
                     if (res.status === 'success') {
-                        button.removeClass('btn-outline').addClass('btn-danger');
+                        button.removeClass('btn-outline')
+                            .addClass('btn-danger');
                         toastr.success('Added to favorites!');
-                    } else if (res.status === 'removed') {
-                        button.addClass('btn-outline').removeClass('btn-danger');
+                    }
+                    else if (res.status === 'removed') {
+                        button.addClass('btn-outline')
+                            .removeClass('btn-danger');
                         toastr.info('Removed from favorites.');
                     }
+                    else {
+                        toastr.error(res.message || 'Error');
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error('Server error');
                 }
             });
         });
+
+        $(document).on('click', '.add-to-cart-btn', function (e) {
+            e.preventDefault();
+
+            const productId = $(this).data('id');
+            const selectedSize = $('.selectable-size.active').data('size');
+
+            if (!selectedSize) {
+                toastr.warning('Please select a size first');
+                return;
+            }
+
+            $.ajax({
+                url: 'size_cart.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    product_id: productId,
+                    size: selectedSize
+                },
+                success: function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('Product added to cart 🛒');
+                    }
+                    else if (res.status === 'removed') {
+                        toastr.info('Product removed from cart');
+                    }
+                    else {
+                        toastr.error(res.message || 'Error');
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error('Server error');
+                }
+            });
+        });
+
     });
 </script>

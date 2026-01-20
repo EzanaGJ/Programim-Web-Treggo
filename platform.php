@@ -1,5 +1,6 @@
 <?php
 require_once "includes/login/menu.php";
+//require "includes/login/auth.php";
 ?>
 
 <div class="container my-5">
