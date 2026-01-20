@@ -72,8 +72,9 @@ while ($row = mysqli_fetch_assoc($result)) {
 }
 ?>
 
-<div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row" id="products-container">
+<div class="wrapper wrapper-content animated fadeInRight d-flex flex-column" style="min-height: 100vh;">
+
+    <div class="row flex-grow-1" id="products-container">
         <?php foreach ($products as $product) { ?>
             <div class="col-md-3">
                 <div class="ibox">
@@ -99,9 +100,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <button class="btn btn-sm btn-outline btn-danger add-to-favorites" data-id="<?= $product['id'] ?>">
                                     <i class="fa fa-heart"></i>
                                 </button>
-                                <button
-                                        class="btn btn-outline add-to-cart"
-                                        data-id="<?= $product['id']; ?>">
+                                <button class="btn btn-outline add-to-cart" data-id="<?= $product['id']; ?>">
                                     <i class="fa fa-shopping-cart"></i>
                                 </button>
                             </div>
@@ -112,8 +111,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <?php } ?>
     </div>
 
-    <!-- Pagination -->
-    <div class="text-center mt-4">
+    <div class="text-center mt-auto py-4">
         <nav>
             <ul class="pagination justify-content-center">
                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
@@ -132,7 +130,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             </ul>
         </nav>
     </div>
-</div>
+</div
 
 <!-- JS + Toastr -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

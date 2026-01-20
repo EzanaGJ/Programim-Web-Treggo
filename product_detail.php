@@ -80,12 +80,8 @@ $product = mysqli_fetch_assoc($result);
 
                     <div class="m-b-sm">
                         <small class="text-muted">
-                            <a href="products.php?category=<?= urlencode($product['category']) ?>" class="category-link">
-                                <?= $product['category'] ?>
-                            </a>
-                            <i class="fa fa-angle-right"></i>
-                            <a href="products.php?subcategory=<?= urlencode($product['subcategory']) ?>" class="category-link">
-                                <?= $product['subcategory'] ?>
+                            <a href="products.php?category=<?= urlencode($product['category']) ?>&subcategory=<?= urlencode($product['subcategory']) ?>" class="category-link">
+                                <?= $product['category'] ?> <i class="fa fa-angle-right"></i> <?= $product['subcategory'] ?>
                             </a>
                         </small>
                     </div>
