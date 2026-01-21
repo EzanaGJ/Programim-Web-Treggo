@@ -87,7 +87,7 @@ $product = mysqli_fetch_assoc($result);
                     </div>
 
                     <div class="m-t-md">
-                        <h2 class="product-main-price">$<?= $product['amount'] ?></h2>
+                        <h2 class="product-main-price"><?= $product['amount'] ?>€</h2>
                     </div>
                     <hr>
 

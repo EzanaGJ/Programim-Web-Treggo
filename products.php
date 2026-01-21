@@ -13,17 +13,17 @@ require_once "menu.php";
 
 
 
-// --- Pagination settings ---
+
 $limit = 12; // Products per page
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// --- Filters ---
+
 $category = $_GET['category'] ?? null;
 $subcategory = $_GET['subcategory'] ?? null;
 $size = $_GET['size'] ?? null;
 
-// --- Build WHERE clause ---
+
 $where = " WHERE 1=1 ";
 $params = [];
 $types = "";
@@ -44,7 +44,6 @@ if ($size) {
     $types .= "s";
 }
 
-// --- Count total products ---
 $countQuery = "SELECT COUNT(*) as total FROM products $where";
 $stmt = mysqli_prepare($conn, $countQuery);
 if (!empty($params)) {
@@ -86,7 +85,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </a>
 
                         <div class="product-desc">
-                            <span class="product-price">$<?= $product['amount'] ?></span>
+                            <span class="product-price"><?= $product['amount'] ?>€</span>
                             <small class="text-muted">
                                 <?= htmlspecialchars($product['category']) ?> › <?= htmlspecialchars($product['subcategory']) ?>
                             </small>
