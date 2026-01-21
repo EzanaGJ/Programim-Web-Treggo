@@ -9,7 +9,6 @@ require_once "includes/login/header.php";
         <h3>Welcome Back</h3>
         <p>Discover and buy products easily with Treggo</p>
 
-        <!-- Login Form -->
         <form method="POST" id="loginForm">
             <div class="form-group text-left">
                 <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>

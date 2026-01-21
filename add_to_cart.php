@@ -10,7 +10,7 @@ $quantity = $_POST['quantity'] ?? 1;
 if (!$user_id) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Ju nuk jeni të loguar'
+        'message' => 'Please log in to continue.'
     ]);
     exit;
 }
@@ -18,7 +18,7 @@ if (!$user_id) {
 if (!$product_id) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Produkt jo i vlefshëm'
+        'message' => 'Product not available.'
     ]);
     exit;
 }
@@ -33,7 +33,7 @@ $product = $result->fetch_assoc();
 if (!$product) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Produkt nuk u gjet'
+        'message' => 'Product not available.'
     ]);
     exit;
 }
@@ -42,7 +42,7 @@ if (!$product) {
 if (!empty($product['sizes'])) {
     echo json_encode([
         'status' => 'choose_size',
-        'message' => 'Zgjidhni një size për këtë produkt',
+        'message' => 'Choose a size for your Item!',
         'redirect_url' => 'product_detail.php?id=' . $product_id
     ]);
     exit;
@@ -55,5 +55,5 @@ $stmt->execute();
 
 echo json_encode([
     'status' => 'success',
-    'message' => 'Produkti u shtua në shportë 🛒'
+    'message' => 'Product added to cart 🛒'
 ]);

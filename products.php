@@ -1,18 +1,8 @@
 <?php
 global $conn;
 session_start();
-
-//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
-//    header("Location: login.php");
-//    exit;
-//}
-
-require_once "connect.php";
-
 require_once "menu.php";
-
-
-
+require_once "connect.php";
 
 $limit = 12; // Products per page
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -186,11 +176,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                         }, 1000);
                     }
                     else {
-                        toastr.error(res.message || 'Diçka shkoi gabim');
+                        toastr.error(res.message || 'Something went wrong.');
                     }
                 },
                 error: function () {
-                    toastr.error('Gabim Sistemi', 'Serveri nuk është i arritshëm');
+                    toastr.error('System Error', 'Could not reach the server.');
                 }
             });
         });

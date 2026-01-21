@@ -1,13 +1,8 @@
 <?php
 global $conn;
 session_start();
-if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
-    exit;
-}
-
-require_once "connect.php";
 require_once "menu.php";
+require_once "connect.php";
 
 $user_id = $_SESSION['id'];
 $query = "SELECT p.id, p.name, p.description, p.category, p.subcategory, p.amount, p.img

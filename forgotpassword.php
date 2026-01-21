@@ -4,6 +4,7 @@ require 'connect.php';
 require 'resetPswMail.php';
 require_once "includes/login/forgotpassword.php";
 
+//Siguron që kodi ekzekutohet vetëm kur forma dërgohet
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $email = trim($_POST['email']);

@@ -1,6 +1,9 @@
 <?php
 require_once "includes/login/top_menu.php";
-
+if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 2) {
+    header("Location: login.php");
+    exit;
+}
 ?>
 
 <div class="container-fluid p-0">

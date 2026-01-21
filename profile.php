@@ -2,10 +2,10 @@
 global $conn;
 
 session_start();
-//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
-//    header("Location: login.php");
-//    exit;
-//}
+if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 2) {
+    header("Location: login.php");
+    exit;
+}
 require_once "connect.php";
 
 //require "includes/login/auth.php";

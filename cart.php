@@ -1,18 +1,14 @@
 <?php
-global $conn;
+global $total, $conn;
 session_start();
+
+if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 2) {
+    header("Location: login.php");
+    exit;
+}
+
 require_once "connect.php";
 require_once "menu.php";
-
-//if (!isset($_SESSION['id'])) {
-//    header("Location: login.php");
-//    exit;
-//}
-
-//if(!isset($_SESSION['id'])){
-//    header("Location: login.php");
-//    exit;
-//}
 
 $user_id = $_SESSION['id'];
 
@@ -134,7 +130,6 @@ while($row = $result->fetch_assoc()){
 <script>
     $(document).ready(function() {
 
-        // ==================== UPDATE CART QUANTITY ====================
         $(".quantity-input").on("input change", function(){
             let input = $(this);
             let cart_id = input.data("cart-id");
@@ -163,7 +158,6 @@ while($row = $result->fetch_assoc()){
             }, 'json');
         });
 
-        // ==================== REMOVE ITEM ====================
         $(".remove-item-form").on("submit", function(e){
             e.preventDefault();
             let form = $(this);

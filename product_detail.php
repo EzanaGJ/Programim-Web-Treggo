@@ -1,13 +1,8 @@
 <?php
 global $conn;
 session_start();
-//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
-//    header("Location: login.php");
-//    exit;
-//}
-require_once "connect.php";
 require_once "menu.php";
-
+require_once "connect.php";
 // Get product ID from URL
 $product_id = $_GET['id'] ?? null;
 if (!$product_id) {
