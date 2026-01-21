@@ -99,9 +99,13 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <button class="btn btn-sm btn-outline btn-danger add-to-favorites" data-id="<?= $product['id'] ?>">
                                     <i class="fa fa-heart"></i>
                                 </button>
-                                <button class="btn btn-outline add-to-cart" data-id="<?= $product['id']; ?>">
+                                <button
+                                        class="btn btn-primary addToCartBtn"
+                                        data-id="<?= $product['id'] ?>"
+                                        data-has-size="<?= !empty($product['sizes']) ? 1 : 0 ?>">
                                     <i class="fa fa-shopping-cart"></i>
                                 </button>
+
                             </div>
                         </div>
                     </div>
