@@ -22,7 +22,7 @@ function sendEmailF($data){
         $mail->isHTML(true);
 
         if(isset($data['type']) && $data['type'] === 'forgot_password'){
-            $resetUrl = "http://localhost/Rregullim/reset_password.php?token=".$data["token"];
+            $resetUrl = "http://localhost/Rregullim2/reset_password.php?token=".$data["token"];
             $mail->Subject = "Reset Your Password";
             $mail->Body = "
                 <h2><strong>Password Reset</strong> </h2>

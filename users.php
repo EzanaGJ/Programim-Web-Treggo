@@ -3,12 +3,12 @@ session_start();
 global $conn;
 require_once "connect.php";
 require_once "includes/login/header.php";
-require "includes/login/auth.php";
+//require "includes/login/auth.php";
 
-//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
-//    header("Location: login.php");
-//    exit;
-//}
+if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 1) {
+    header("Location: login.php");
+    exit;
+}
 
 if ($_SESSION['role_id'] !== 1) {
     header("Location: profile.php");
@@ -48,7 +48,7 @@ function getRoleName($role_id) {
                 <i class="fa fa-user"></i> Roles
             </a>
 
-            <button type="button" class="btn btn-add-user" data-toggle="modal" data-target="#addUserModal">
+            <button type="button" class="btn btn-add-user mr-2" data-toggle="modal" data-target="#addUserModal">
                 <i class="fa fa-plus"></i> Add User
             </button>
 
@@ -179,8 +179,9 @@ function getRoleName($role_id) {
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+<script src="js/inactivityLogout.js"></script>
 <script>
-        $(document).ready(function(){
+    $(document).ready(function() {
 
         var table = $('.user-list-table').DataTable({
         pageLength: 10,

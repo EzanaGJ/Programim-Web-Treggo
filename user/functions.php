@@ -31,6 +31,6 @@ function addUser($conn, $name, $surname, $email, $role){
     $surname = mysqli_real_escape_string($conn, $surname);
     $email = mysqli_real_escape_string($conn, $email);
     $role = mysqli_real_escape_string($conn, $role);
-    $password = password_hash('password123', PASSWORD_DEFAULT);
+    $password = password_hash('12345678', PASSWORD_DEFAULT);
     return mysqli_query($conn, "INSERT INTO users (name,surname,email,role,password) VALUES ('$name','$surname','$email','$role','$password')");
 }

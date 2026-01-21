@@ -23,7 +23,6 @@ if(isset($_POST['reset_password'])) {
         if($result->num_rows > 0){
             $row = $result->fetch_assoc();
 
-            // Hash password
             $hashed = password_hash($password, PASSWORD_BCRYPT);
 
             // Update password dhe fshij reset code
@@ -70,7 +69,10 @@ if(isset($_POST['reset_password'])) {
     <p class="m-t"><small>©️ 2025 Treggo | Designed by <strong>EMM'S</strong></small></p>
 </div>
 
-<?php
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script><?php
 require_once "includes/login/footer.php";
 ?>
 

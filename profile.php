@@ -39,6 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($result && mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
             if(password_verify($current_password, $row['password'])) {
+                if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{8,}$/', $new_password)) {
+                    echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Password must be at least 8 characters and include a letter, a number, and a special character.'
+                    ]);
+                    exit;
+                }
                 $hashed_new = password_hash($new_password, PASSWORD_DEFAULT);
                 $sql_pw = "UPDATE users SET password='$hashed_new' WHERE id='$user_id'";
                 if(mysqli_query($conn, $sql_pw)) {
@@ -223,6 +230,10 @@ require_once "includes/login/footer.php";
 ?>
 
 <!-- JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/bootstrap.js"></script>
 
@@ -306,7 +317,14 @@ require_once "includes/login/footer.php";
 
         $("#passwordError").hide();
 
-        if(new_pw.length < 6) { $("#passwordError").text("New password must be at least 6 characters").fadeIn(); return; }
+        var password_regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+        if (!password_regex.test(new_pw)) {
+            $("#passwordError").text(
+                "Password must be at least 8 characters and include a letter, a number, and a special character."
+            ).fadeIn();
+            return;
+        }
         if(new_pw !== confirm_pw) { $("#passwordError").text("Passwords do not match").fadeIn(); return; }
 
         $.ajax({

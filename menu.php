@@ -160,8 +160,6 @@ require_once "includes/login/top_menu.php";
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.js"></script>
 
-
-
 </body>
 </html>
 

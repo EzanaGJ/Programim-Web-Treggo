@@ -3,7 +3,6 @@ global $conn;
 session_start();
 require_once "connect.php";
 require_once "includes/login/menu.php";
-//require "includes/login/auth.php";
 
 if (!isset($_SESSION['id'])) {
     header("Location: login.php");
@@ -170,7 +169,10 @@ $cartEmpty = ($total <= 0);
 </div>
 
 <?php require_once "includes/no_login/footer.php"; ?>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 <script>
     $(document).ready(function() {
 

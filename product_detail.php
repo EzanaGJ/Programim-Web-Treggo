@@ -129,21 +129,10 @@ $product = mysqli_fetch_assoc($result);
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
+
 <script>
     $(document).ready(function() {
-
-        // --- 1. Inactivity Logout (Untouched) ---
-        let timeoutDuration = 900000;
-        let logoutTimer;
-        function startLogoutTimer() {
-            clearTimeout(logoutTimer);
-            logoutTimer = setTimeout(() => {
-                alert("You have been logged out due to inactivity.");
-                window.location.href = "login.php";
-            }, timeoutDuration);
-        }
-        $(document).on('mousemove keydown click scroll', startLogoutTimer);
-        startLogoutTimer();
 
         $(document).on('click', '.selectable-size', function () {
             $('.selectable-size').removeClass('active');

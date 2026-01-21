@@ -106,6 +106,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                     <i class="fa fa-shopping-cart"></i>
                                 </button>
 
+
                             </div>
                         </div>
                     </div>
@@ -140,22 +141,10 @@ while ($row = mysqli_fetch_assoc($result)) {
 <link href="css/plugins/toastr/toastr.min.css" rel="stylesheet">
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 
 <script>
     $(document).ready(function() {
-
-        // --- 1. Inactivity Logout (Untouched) ---
-        let timeoutDuration = 900000;
-        let logoutTimer;
-        function startLogoutTimer() {
-            clearTimeout(logoutTimer);
-            logoutTimer = setTimeout(() => {
-                alert("You have been logged out due to inactivity.");
-                window.location.href = "login.php";
-            }, timeoutDuration);
-        }
-        $(document).on('mousemove keydown click scroll', startLogoutTimer);
-        startLogoutTimer();
 
         // --- 2. Inspinia Toastr Configuration ---
         toastr.options = {
@@ -174,37 +163,41 @@ while ($row = mysqli_fetch_assoc($result)) {
             "hideMethod": "fadeOut"
         };
 
-        // --- 3. Add to Cart (Standard Alert - Untouched) ---
-        $('.add-to-cart').on('click', function () {
+        $('.addToCartBtn').on('click', function () {
             const productId = $(this).data('id');
             const button = $(this);
 
             $.ajax({
                 url: 'add_to_cart.php',
                 method: 'POST',
-                data: { product_id: productId },
+                data: { product_id: productId, quantity: 1 },
                 dataType: 'json',
                 success: function (res) {
                     if (res.status === 'success') {
+                        // Nuk ka size → shtohet automatikisht
                         button.removeClass('btn-outline').addClass('btn-success');
-                        toastr.success('Success', 'Product added to cart 🛒');
+                        toastr.success(res.message);
                     }
-                    else if (res.status === 'removed') {
-                        button.addClass('btn-outline').removeClass('btn-success');
-                        toastr.info('Notice', 'Product removed from cart');
+                    else if (res.status === 'choose_size') {
+                        // Ka size → ridrejto në faqen e produktit
+                        toastr.info(res.message);
+                        setTimeout(() => {
+                            window.location.href = res.redirect_url;
+                        }, 1000);
                     }
                     else {
-                        toastr.error('Error', res.message || 'Something went wrong');
+                        toastr.error(res.message || 'Diçka shkoi gabim');
                     }
                 },
                 error: function () {
-                    toastr.error('System Error', 'Server not reachable');
+                    toastr.error('Gabim Sistemi', 'Serveri nuk është i arritshëm');
                 }
             });
         });
 
 
-        // --- 4. Add to Favorites ---
+
+        // ---   Add to Favorites ---
         $('.add-to-favorites').on('click', function() {
             const productId = $(this).data('id');
             const button = $(this);

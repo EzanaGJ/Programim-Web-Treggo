@@ -75,7 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="copyright">
     <p class="m-t"><small>©️ 2025 Treggo | Designed by <strong>EMM'S</strong></small></p>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 <?php
 require_once "includes/login/footer.php";
 ?>

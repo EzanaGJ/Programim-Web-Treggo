@@ -111,6 +111,10 @@ $result = mysqli_stmt_get_result($stmt);
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 
 <script>
     $(document).on("click", ".removeFavoriteBtn", function (e) {

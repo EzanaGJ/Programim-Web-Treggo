@@ -1,46 +1,59 @@
 <?php
-global $conn;
 session_start();
-require_once "connect.php";
-header('Content-Type: application/json');
+require 'connect.php';
 
+// Përdor `id` nga session
 $user_id = $_SESSION['id'] ?? 0;
 $product_id = $_POST['product_id'] ?? 0;
+$quantity = $_POST['quantity'] ?? 1;
 
-if (!$user_id || !$product_id) {
+if (!$user_id) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'User not logged in or invalid product'
+        'message' => 'Ju nuk jeni të loguar'
     ]);
     exit;
 }
 
-// Check if product already in cart
-$check = $conn->prepare("SELECT id FROM cart WHERE user_id = ? AND product_id = ?");
-$check->bind_param("ii", $user_id, $product_id);
-$check->execute();
-$res = $check->get_result();
-
-if ($res->num_rows > 0) {
-    // REMOVE
-    $del = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
-    $del->bind_param("ii", $user_id, $product_id);
-    $del->execute();
-
+if (!$product_id) {
     echo json_encode([
-        'status' => 'removed',
-        'message' => 'Product removed from cart'
+        'status' => 'error',
+        'message' => 'Produkt jo i vlefshëm'
     ]);
-} else {
-    // ADD
-    $ins = $conn->prepare(
-        "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, 1)"
-    );
-    $ins->bind_param("ii", $user_id, $product_id);
-    $ins->execute();
-
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Product added to cart'
-    ]);
+    exit;
 }
+
+// Kontrollo në DB nëse produkti ka size
+$stmt = $conn->prepare("SELECT sizes FROM products WHERE id = ?");
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$product = $result->fetch_assoc();
+
+if (!$product) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Produkt nuk u gjet'
+    ]);
+    exit;
+}
+
+// Nëse produkti ka size → ridrejto përdoruesin për të zgjedhur
+if (!empty($product['sizes'])) {
+    echo json_encode([
+        'status' => 'choose_size',
+        'message' => 'Zgjidhni një size për këtë produkt',
+        'redirect_url' => 'product_detail.php?id=' . $product_id
+    ]);
+    exit;
+}
+
+// Nëse nuk ka size → shto direkt në cart
+$stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity, added_at) VALUES (?, ?, ?, NOW())");
+$stmt->bind_param("iii", $user_id, $product_id, $quantity);
+$stmt->execute();
+
+echo json_encode([
+    'status' => 'success',
+    'message' => 'Produkti u shtua në shportë 🛒'
+]);

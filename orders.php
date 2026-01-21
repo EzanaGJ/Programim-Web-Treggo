@@ -49,7 +49,10 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
         <p>You have not placed any orders yet. <a href="products.php">Shop now</a></p>
     <?php endif; ?>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 </body>
 </html>
 

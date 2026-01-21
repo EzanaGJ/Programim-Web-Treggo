@@ -111,7 +111,10 @@ $address = $stmt_addr->get_result()->fetch_assoc();
         <i class="fas fa-arrow-left"></i> Back to Orders
     </a>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="css/plugins/toastr/toastr.min.css">
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script>
 
 </body>
 </html>
