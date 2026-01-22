@@ -1,12 +1,10 @@
 <?php
-session_start();
 global $conn;
-
-//if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 1) {
-//    header("Location: login.php");
-//    exit;
-//}
-require "includes/login/auth.php";
+session_start();
+if (!isset($_SESSION['id']) || $_SESSION['role_id'] != 1) {
+    header("Location: login.php");
+    exit;
+}
 require_once "includes/login/header.php";
 
 /* Fetch roles */

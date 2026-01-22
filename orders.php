@@ -1,9 +1,14 @@
 <?php
 global $conn;
 session_start();
-require_once "includes/login/menu.php";
 require_once "connect.php";
+require_once "includes/login/menu.php";
 
+$user_id = $_SESSION['id'] ?? null;
+if(!$user_id){
+    header("Location: login.php");
+    exit;
+}
 $stmt = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

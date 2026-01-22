@@ -199,7 +199,7 @@ else if ($action === "register") {
     exit;
 }
 
-/* ==================== UPDATE CART QUANTITY ==================== */
+/* UPDATE CART QUANTITY  */
 else if ($action === "update_cart") {
 
     if (!isset($_SESSION['id'], $_POST['cart_id'], $_POST['quantity'])) {
@@ -219,7 +219,7 @@ else if ($action === "update_cart") {
     exit;
 }
 
-/* ==================== REMOVE ITEM FROM CART ==================== */
+/*  REMOVE ITEM FROM CART */
 else if ($action === "remove_cart_item") {
 
     if (!isset($_SESSION['id'], $_POST['cart_id'])) {
@@ -238,6 +238,6 @@ else if ($action === "remove_cart_item") {
     exit;
 }
 
-/* ==================== DEFAULT ==================== */
+/*  DEFAULT  */
 echo json_encode(["status" => "error", "message" => "Invalid action"]);
 exit;

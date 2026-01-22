@@ -1,14 +1,14 @@
 <?php
 global $conn;
 session_start();
-require_once "connect.php";
 require_once "includes/login/menu.php";
+require_once "connect.php";
 
 $user_id = $_SESSION['id'] ?? null;
-if(!$user_id){
-    header("Location: login.php");
-    exit;
-}
+//if(!$user_id){
+//    header("Location: login.php");
+//    exit;
+//}
 
 $sql = "SELECT c.product_id, c.quantity, p.amount
         FROM cart c

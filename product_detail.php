@@ -1,8 +1,13 @@
 <?php
 global $conn;
 session_start();
-require_once "menu.php";
+//if (!isset($_SESSION["id"]) || $_SESSION["role_id"] != 1) {
+//    header("Location: login.php");
+//    exit;
+//}
 require_once "connect.php";
+require_once "menu.php";
+
 // Get product ID from URL
 $product_id = $_GET['id'] ?? null;
 if (!$product_id) {
@@ -120,12 +125,11 @@ $product = mysqli_fetch_assoc($result);
         </div>
     </div>
 </div>
-
+<script src="js/plugins/toastr/toastr.min.js"></script>
+<script src="js/inactivityLogout.js"></script><
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="js/inactivityLogout.js"></script>
-
 <script>
     $(document).ready(function() {
 

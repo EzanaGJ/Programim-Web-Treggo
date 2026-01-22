@@ -1,8 +1,8 @@
 <?php
 global $conn;
 session_start();
-require_once "includes/login/menu.php";
 require_once "connect.php";
+require_once "includes/login/menu.php";
 
 $user_id = $_SESSION['id'] ?? null;
 if(!$user_id){
